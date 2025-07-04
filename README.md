@@ -4,12 +4,12 @@
 
 A sophisticated, multi-agent AI ecosystem designed to revolutionize treasury operations in financial institutions. This system leverages cutting-edge AI technologies including **LSTM/Transformer models**, **Multi-agent Reinforcement Learning**, **Natural Language Interfaces**, and **Advanced Portfolio Optimization**.
 
+## Watch the Demo
 [![Watch the Demo](https://img.youtube.com/vi/TdPKkhhdWJk/hqdefault.jpg)](https://youtu.be/TdPKkhhdWJk)
 
 ## Table of Contents
 
 - [Agentic Treasury and Liquidity Management (TLM) System](#agentic-treasury-and-liquidity-management-tlm-system)
-  - [Advanced AI Implementation](#advanced-ai-implementation)
   - [Quick Start](#quick-start)
   - [Agent Mesh Architecture](#agent-mesh-architecture)
   - [Agent Integration & Coordination](#agent-integration--coordination)
