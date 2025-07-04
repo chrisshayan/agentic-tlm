@@ -324,13 +324,14 @@ class TLMSystem:
                     self.send_header('Access-Control-Allow-Headers', 'Content-Type')
                     super().end_headers()
             
-            with socketserver.TCPServer(("", self.web_port), CustomHandler) as httpd:
-                server_thread = threading.Thread(target=httpd.serve_forever)
-                server_thread.daemon = True
-                server_thread.start()
-                
-                print(f"✅ Web server running on http://localhost:{self.web_port}")
-                return httpd
+            # Create the server without using 'with' context manager
+            httpd = socketserver.TCPServer(("", self.web_port), CustomHandler)
+            server_thread = threading.Thread(target=httpd.serve_forever)
+            server_thread.daemon = True
+            server_thread.start()
+            
+            print(f"✅ Web server running on http://localhost:{self.web_port}")
+            return httpd
                 
         except Exception as e:
             print(f"❌ Failed to start web server: {e}")
