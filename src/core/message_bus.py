@@ -22,6 +22,13 @@ class MessageType(Enum):
     CASH_FLOW_FORECAST = "cash_flow_forecast"
     LIQUIDITY_ALERT = "liquidity_alert"
     BROADCAST = "broadcast"
+    
+    # Additional message types for Phase 3 features
+    FORECAST_UPDATE = "forecast_update"
+    RISK_ALERT = "risk_alert"
+    PORTFOLIO_OPTIMIZATION = "portfolio_optimization"
+    MARKET_UPDATE = "market_update"
+    SYSTEM_STATUS = "system_status"
 
 
 @dataclass
