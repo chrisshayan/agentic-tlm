@@ -91,6 +91,7 @@ class Settings:
         self.bloomberg_endpoint: str = os.getenv("BLOOMBERG_ENDPOINT", "https://api.bloomberg.com/v1")
         
         self.alpha_vantage_api_key: Optional[str] = os.getenv("ALPHA_VANTAGE_API_KEY")
+        self.fred_api_key: Optional[str] = os.getenv("FRED_API_KEY")
         self.yahoo_finance_enabled: bool = os.getenv("YAHOO_FINANCE_ENABLED", "true").lower() == "true"
         
         # =============================================================================

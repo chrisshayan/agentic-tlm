@@ -8,7 +8,7 @@ Alpha Vantage, Yahoo Finance, FRED, and other financial data sources.
 import asyncio
 import aiohttp
 import yfinance as yf
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Optional, Union, Any, Callable
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
@@ -57,10 +57,10 @@ class MarketDataService:
         
         # Provider configurations
         self.alpha_vantage_key = settings.alpha_vantage_api_key
-        self.fred_key = settings.get("fred_api_key", "demo_key")
+        self.fred_key = settings.fred_api_key or 'demo_key'
         
         # Real-time data streams
-        self.subscribers: Dict[str, List[callable]] = {}
+        self.subscribers: Dict[str, List[Callable]] = {}
         
     async def start(self):
         """Start the market data service."""
@@ -253,7 +253,7 @@ class MarketDataService:
     # REAL-TIME SUBSCRIPTIONS
     # =============================================================================
     
-    def subscribe_to_symbol(self, symbol: str, callback: callable):
+    def subscribe_to_symbol(self, symbol: str, callback: Callable):
         """Subscribe to real-time updates for a symbol."""
         if symbol not in self.subscribers:
             self.subscribers[symbol] = []
@@ -261,7 +261,7 @@ class MarketDataService:
         
         logger.info(f"Subscribed to real-time updates for {symbol}")
     
-    def unsubscribe_from_symbol(self, symbol: str, callback: callable):
+    def unsubscribe_from_symbol(self, symbol: str, callback: Callable):
         """Unsubscribe from real-time updates for a symbol."""
         if symbol in self.subscribers and callback in self.subscribers[symbol]:
             self.subscribers[symbol].remove(callback)

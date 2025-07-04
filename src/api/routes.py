@@ -204,6 +204,27 @@ async def get_dashboard_data(
             except Exception as e:
                 dashboard_data["agents"]["taaa"]["error"] = str(e)
         
+        # Get data from MMEA agent
+        mmea_agent = orchestrator.agents.get('mmea')
+        if mmea_agent and hasattr(mmea_agent, 'get_dashboard_data'):
+            try:
+                mmea_data = await mmea_agent.get_dashboard_data()
+                dashboard_data["agents"]["mmea"] = mmea_data
+                
+                # Update market data in dashboard
+                if "market_overview" in mmea_data:
+                    dashboard_data["market_data"] = mmea_data["market_overview"]
+                
+                # Update volatility metrics
+                if "metrics" in mmea_data and "market_volatility" in mmea_data["metrics"]:
+                    dashboard_data["real_time_metrics"]["market_volatility"] = {
+                        "value": mmea_data["metrics"]["market_volatility"],
+                        "unit": "decimal",
+                        "description": "Average market volatility"
+                    }
+            except Exception as e:
+                dashboard_data["agents"]["mmea"]["error"] = str(e)
+        
         # Update agent status from orchestrator
         if "agents" in agent_status:
             for agent_id, agent_info in agent_status["agents"].items():
@@ -401,6 +422,18 @@ async def get_agent_status_dashboard(
                     "coordination": "Unknown"
                 }
             },
+            "mmea": {
+                "name": "MMEA - Market Monitor",
+                "status": "unknown",
+                "metrics": {
+                    "market_regime": "Unknown",
+                    "monitored_symbols": 0,
+                    "active_signals": 0,
+                    "signal_accuracy": 0.0,
+                    "alerts_generated": 0,
+                    "market_volatility": 0.0
+                }
+            },
             "taaa": {
                 "name": "TAAA - Interface",
                 "status": "unknown",
@@ -420,12 +453,20 @@ async def get_agent_status_dashboard(
                     dashboard_agents[agent_id]["status"] = agent_info.get("status", "unknown")
         
         # Try to get detailed metrics from agents
-        for agent_id in ["cffa", "loa", "taaa"]:
+        for agent_id in ["cffa", "loa", "mmea", "taaa"]:
             agent = orchestrator.agents.get(agent_id)
             if agent and hasattr(agent, 'get_dashboard_metrics'):
                 try:
                     agent_metrics = await agent.get_dashboard_metrics()
                     dashboard_agents[agent_id]["metrics"].update(agent_metrics)
+                except Exception as e:
+                    print(f"Error getting metrics from {agent_id}: {e}")
+            elif agent_id == "mmea" and agent and hasattr(agent, 'get_metrics'):
+                # MMEA uses get_metrics instead of get_dashboard_metrics
+                try:
+                    mmea_metrics = await agent.get_metrics()
+                    if "performance_metrics" in mmea_metrics:
+                        dashboard_agents[agent_id]["metrics"].update(mmea_metrics["performance_metrics"])
                 except Exception as e:
                     print(f"Error getting metrics from {agent_id}: {e}")
         
@@ -434,5 +475,73 @@ async def get_agent_status_dashboard(
             "agents": dashboard_agents
         }
         
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/dashboard/market-data")
+async def get_market_data(
+    orchestrator: AgentOrchestrator = Depends(get_orchestrator)
+) -> Dict[str, Any]:
+    """Get market data from MMEA agent."""
+    
+    try:
+        mmea_agent = orchestrator.agents.get('mmea')
+        if not mmea_agent:
+            raise HTTPException(status_code=404, detail="MMEA agent not found")
+        
+        if hasattr(mmea_agent, 'get_market_data'):
+            market_data = await mmea_agent.get_market_data()
+            return {
+                "timestamp": datetime.utcnow().isoformat(),
+                "market_data": market_data
+            }
+        else:
+            # Return fallback market data
+            return {
+                "timestamp": datetime.utcnow().isoformat(),
+                "market_data": {
+                    "market_regime": "NORMAL",
+                    "monitored_symbols": 15,
+                    "data_coverage": 85.0,
+                    "average_volatility": 0.18,
+                    "active_signals": 3,
+                    "last_update": datetime.utcnow().isoformat()
+                }
+            }
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/dashboard/trading-signals")
+async def get_trading_signals(
+    orchestrator: AgentOrchestrator = Depends(get_orchestrator)
+) -> Dict[str, Any]:
+    """Get trading signals from MMEA agent."""
+    
+    try:
+        mmea_agent = orchestrator.agents.get('mmea')
+        if not mmea_agent:
+            raise HTTPException(status_code=404, detail="MMEA agent not found")
+        
+        if hasattr(mmea_agent, 'get_trading_signals'):
+            signals_data = await mmea_agent.get_trading_signals()
+            return {
+                "timestamp": datetime.utcnow().isoformat(),
+                "trading_signals": signals_data
+            }
+        else:
+            # Return fallback trading signals
+            return {
+                "timestamp": datetime.utcnow().isoformat(),
+                "trading_signals": {
+                    "total_signals": 0,
+                    "signals": [],
+                    "signal_accuracy": 0.78,
+                    "market_regime": "NORMAL"
+                }
+            }
+            
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) 

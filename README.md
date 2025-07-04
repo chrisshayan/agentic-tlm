@@ -39,11 +39,20 @@ A sophisticated, multi-agent AI ecosystem designed to revolutionize treasury ope
 - **Real-time Rebalancing** with transaction cost optimization
 - **Advanced Risk Metrics** (VaR, Sharpe Ratio, Calmar Ratio)
 
+### 5. **Real-time Market Monitoring & Execution (MMEA)**
+- **Comprehensive Market Monitoring** across 15+ financial instruments
+- **Advanced Trading Signal Generation** with machine learning
+- **Real-time Risk Assessment** and volatility monitoring
+- **Market Regime Detection** (Bull, Bear, Sideways)
+- **Automated Alert System** for market anomalies
+- **Portfolio Impact Analysis** with liquidity assessment
+- **Integration with CFFA and LOA** for coordinated decision making
+
 ## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Enhanced TLM System - Phase 3                │
+│                    Enhanced TLM System - Integrated Agents      │
 ├─────────────────────────────────────────────────────────────────┤
 │  🤖 TAAA - Natural Language Interface                          │
 │  ├── Multi-LLM Integration (GPT-4, Claude)                     │
@@ -55,23 +64,33 @@ A sophisticated, multi-agent AI ecosystem designed to revolutionize treasury ope
 │  ├── LSTM Networks with Attention                              │
 │  ├── Transformer Models                                        │
 │  ├── Ensemble Forecasting                                      │
-│  └── Real-time Model Training                                  │
+│  ├── Real-time Model Training                                  │
+│  └── 🔗 MMEA Market Data Integration                           │
 ├─────────────────────────────────────────────────────────────────┤
 │  🎯 LOA - RL-Powered Optimization                              │
 │  ├── Multi-agent Reinforcement Learning                        │
 │  ├── Advanced Portfolio Optimization                           │
 │  ├── Dynamic Coordination                                      │
-│  └── Risk-adjusted Strategy Learning                           │
+│  ├── Risk-adjusted Strategy Learning                           │
+│  └── 🔗 MMEA Trading Signals & Risk Assessment                 │
 ├─────────────────────────────────────────────────────────────────┤
-│  📊 Enhanced Web Dashboard                                     │
+│  📊 MMEA - Market Monitoring & Execution                       │
+│  ├── 15+ Financial Instruments Monitoring                      │
+│  ├── ML-based Trading Signal Generation                        │
+│  ├── Real-time Risk Assessment & Volatility Monitoring         │
+│  ├── Market Regime Detection (Bull/Bear/Sideways)              │
+│  ├── Automated Alert System for Market Anomalies              │
+│  ├── Portfolio Impact Analysis & Liquidity Assessment          │
+│  └── 🔗 Coordinated Decision Making with CFFA & LOA           │
+├─────────────────────────────────────────────────────────────────┤
+│  📈 Enhanced Web Dashboard                                     │
 │  ├── Interactive Chat Interface                                │
 │  ├── Real-time AI Model Visualization                          │
 │  ├── Live Performance Metrics                                  │
+│  ├── Market Insights & Trading Signals                         │
 │  └── Developer Integration Guide                               │
 ├─────────────────────────────────────────────────────────────────┤
-│  MMEA - Market Monitoring                                      │
-│  RHA - Risk & Hedging                                          │
-│  RRA - Regulatory Reporting                                    │
+│  RHA - Risk & Hedging • RRA - Regulatory Reporting            │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -128,6 +147,39 @@ python3 start.py
 - **Chat API**: http://localhost:8000/api/chat
 - **Health Check**: http://localhost:8000/api/health
 
+## Agent Integration & Coordination
+
+### Multi-Agent Communication
+The system features sophisticated inter-agent communication through a message bus architecture:
+
+- **CFFA ↔ MMEA**: Market data integration for forecast accuracy
+  - CFFA requests real-time market data from MMEA
+  - MMEA provides volatility alerts that trigger emergency forecasts
+  - Market trends adjust CFFA's confidence intervals
+
+- **LOA ↔ MMEA**: Trading signals and risk assessment integration
+  - LOA requests trading signals for portfolio optimization
+  - MMEA provides risk assessments that adjust LOA's risk tolerance
+  - Market alerts trigger defensive rebalancing strategies
+
+- **TAAA ↔ All Agents**: Natural language coordination
+  - TAAA orchestrates queries across all agents
+  - Provides unified natural language interface
+  - Coordinates multi-agent responses
+
+### Real-time Data Flow
+```
+Market Data → MMEA → Trading Signals → LOA → Portfolio Updates
+     ↓              ↓                    ↓
+  CFFA ← Market Alerts ← Risk Assessment ← Dashboard Updates
+```
+
+### Adaptive Behavior
+- **High Volatility**: MMEA alerts trigger defensive rebalancing in LOA
+- **Market Regime Changes**: CFFA adjusts forecasting models based on MMEA regime detection
+- **Liquidity Constraints**: MMEA liquidity alerts modify LOA's asset allocation constraints
+- **Emergency Scenarios**: Coordinated response across all agents for crisis management
+
 ## Natural Language Interface
 
 ### Interactive Chat Examples
@@ -155,6 +207,15 @@ curl -X POST "http://localhost:8000/api/chat" \
   "confidence": 0.94,
   "data": {...}
 }
+
+# MMEA Market Data API
+curl -X GET "http://localhost:8000/api/v1/dashboard/market-data"
+
+# MMEA Trading Signals API
+curl -X GET "http://localhost:8000/api/v1/dashboard/trading-signals"
+
+# Agent Status with MMEA Integration
+curl -X GET "http://localhost:8000/api/v1/dashboard/agent-status"
 ```
 
 ## Usage Examples
@@ -196,6 +257,55 @@ optimization = await loa.optimize_with_rl(
     learning_rate=0.0003
 )
 ```
+
+### 4. Market Monitoring & Execution (MMEA)
+```python
+# MMEA Agent Market Analysis
+market_data = await mmea.get_market_data()
+# Returns: real-time data for 15+ instruments
+
+trading_signals = await mmea.get_trading_signals()
+# Returns: ML-generated buy/sell signals with confidence scores
+
+risk_assessment = await mmea.assess_market_risk()
+# Returns: overall risk level, volatility risks, recommendations
+```
+
+### 5. Agent Integration Examples
+```python
+# CFFA requesting market data from MMEA
+await cffa.request_market_data()  # Triggers MMEA market data response
+
+# LOA requesting trading signals from MMEA
+await loa.request_trading_signals()  # Gets latest trading recommendations
+
+# MMEA sending market alerts to other agents
+await mmea.send_market_alert("HIGH_VOLATILITY", volatility_data)
+```
+
+## Enhanced Web Dashboard
+
+### New Market Insights Section
+The dashboard now features comprehensive market insights from MMEA:
+
+- **Market Overview**: Real-time market regime, volatility, and coverage statistics
+- **Active Trading Signals**: Live buy/sell recommendations with strength indicators
+- **Risk Alerts**: Current risk levels and portfolio impact warnings
+- **Market Monitoring**: 15+ financial instruments tracked in real-time
+
+### Agent Status Cards
+Updated agent cards show real-time integration status:
+
+- **CFFA**: Model accuracy enhanced by MMEA market data
+- **LOA**: Portfolio optimization guided by MMEA trading signals
+- **MMEA**: Market regime detection and signal generation
+- **TAAA**: Coordinated responses across all agents
+
+### Live Data Updates
+- Market data refreshes every 45 seconds
+- Trading signals update every minute
+- Risk assessments update in real-time
+- Agent coordination status shown live
 
 ## Enhanced Web Dashboard
 

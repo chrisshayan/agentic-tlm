@@ -526,6 +526,9 @@ class LiquidityOptimizationAgent(BaseAgent):
         self.message_bus.subscribe(MessageType.LIQUIDITY_ALERT, self._handle_liquidity_alert)
         self.message_bus.subscribe(MessageType.FORECAST_UPDATE, self._handle_forecast_update)
         self.message_bus.subscribe(MessageType.RISK_ALERT, self._handle_risk_alert)
+        self.message_bus.subscribe("trading_signal_response", self._handle_trading_signals)
+        self.message_bus.subscribe("risk_assessment_response", self._handle_risk_assessment)
+        self.message_bus.subscribe("market_alert", self._handle_market_alert)
         
         # Start background tasks
         asyncio.create_task(self._rl_training_loop())
@@ -1298,4 +1301,193 @@ class LiquidityOptimizationAgent(BaseAgent):
                 "sharpe_ratio": 1.52,
                 "episodes": 1247,
                 "coordination": "Unknown"
-            } 
+            }
+    
+    # =============================================================================
+    # MMEA INTEGRATION METHODS
+    # =============================================================================
+    
+    async def _handle_trading_signals(self, message: Message):
+        """Handle trading signals from MMEA."""
+        try:
+            if hasattr(message, 'content') and message.content:
+                signals_data = message.content
+                
+                if 'trading_signals' in signals_data and 'signals' in signals_data['trading_signals']:
+                    signals = signals_data['trading_signals']['signals']
+                    
+                    # Analyze signals for portfolio optimization
+                    await self._incorporate_trading_signals(signals)
+                    logger.debug(f"Processed {len(signals)} trading signals")
+                    
+        except Exception as e:
+            logger.error(f"Error handling trading signals: {e}")
+    
+    async def _handle_risk_assessment(self, message: Message):
+        """Handle risk assessment from MMEA."""
+        try:
+            if hasattr(message, 'content') and message.content:
+                risk_data = message.content
+                
+                # Update risk constraints based on market assessment
+                overall_risk = risk_data.get('overall_risk_level', 'MODERATE')
+                
+                if overall_risk == 'HIGH':
+                    # Reduce risk tolerance
+                    self.risk_tolerance = min(self.risk_tolerance * 0.8, 0.1)
+                    logger.info("Reduced risk tolerance due to high market risk")
+                elif overall_risk == 'LOW':
+                    # Increase risk tolerance
+                    self.risk_tolerance = min(self.risk_tolerance * 1.1, 0.3)
+                    logger.info("Increased risk tolerance due to low market risk")
+                
+                # Store risk recommendations
+                if 'recommended_actions' in risk_data:
+                    self.risk_recommendations = risk_data['recommended_actions']
+                    
+        except Exception as e:
+            logger.error(f"Error handling risk assessment: {e}")
+    
+    async def _handle_market_alert(self, message: Message):
+        """Handle market alerts from MMEA."""
+        try:
+            if hasattr(message, 'content') and message.content:
+                alert_data = message.content
+                alert_type = alert_data.get('alert_type', '')
+                
+                # React to different alert types
+                if alert_type == 'HIGH_VOLATILITY':
+                    # Trigger defensive rebalancing
+                    await self._trigger_defensive_rebalancing()
+                    logger.info("Triggered defensive rebalancing due to high volatility")
+                
+                elif alert_type == 'LOW_LIQUIDITY':
+                    # Avoid low liquidity assets
+                    self._update_liquidity_constraints(alert_data.get('data', []))
+                    logger.info("Updated liquidity constraints")
+                    
+        except Exception as e:
+            logger.error(f"Error handling market alert: {e}")
+    
+    async def _incorporate_trading_signals(self, signals: List[Dict[str, Any]]):
+        """Incorporate trading signals into portfolio optimization."""
+        try:
+            signal_adjustments = {}
+            
+            for signal in signals:
+                symbol = signal.get('symbol', '')
+                signal_type = signal.get('signal_type', '')
+                strength = signal.get('strength', 0.0)
+                
+                # Map symbols to asset classes
+                asset_class = self._map_symbol_to_asset_class(symbol)
+                if asset_class:
+                    if signal_type == 'BUY' and strength > 0.7:
+                        signal_adjustments[asset_class] = strength * 0.05  # Max 5% adjustment
+                    elif signal_type == 'SELL' and strength > 0.7:
+                        signal_adjustments[asset_class] = -strength * 0.05
+            
+            # Apply signal adjustments to expected returns
+            if signal_adjustments:
+                self._adjust_expected_returns(signal_adjustments)
+                logger.debug(f"Applied signal adjustments: {signal_adjustments}")
+                
+        except Exception as e:
+            logger.error(f"Error incorporating trading signals: {e}")
+    
+    def _map_symbol_to_asset_class(self, symbol: str) -> Optional[str]:
+        """Map trading symbol to asset class."""
+        symbol_mapping = {
+            'SPY': 'stocks', 'QQQ': 'stocks', 'IWM': 'stocks', 'VTI': 'stocks', 'DIA': 'stocks',
+            '^TNX': 'bonds', '^TYX': 'bonds', '^FVX': 'bonds',
+            'GC=F': 'alternatives', 'CL=F': 'alternatives', 'SI=F': 'alternatives',
+            'EURUSD=X': 'derivatives', 'GBPUSD=X': 'derivatives', 'JPYUSD=X': 'derivatives'
+        }
+        return symbol_mapping.get(symbol)
+    
+    def _adjust_expected_returns(self, adjustments: Dict[str, float]):
+        """Adjust expected returns based on trading signals."""
+        try:
+            asset_class_indices = {
+                'cash': 0, 'bonds': 1, 'stocks': 2, 'alternatives': 3, 'derivatives': 4
+            }
+            
+            for asset_class, adjustment in adjustments.items():
+                if asset_class in asset_class_indices:
+                    idx = asset_class_indices[asset_class]
+                    self.expected_returns[idx] += adjustment
+                    # Keep returns within reasonable bounds
+                    self.expected_returns[idx] = max(-0.1, min(0.5, self.expected_returns[idx]))
+                    
+        except Exception as e:
+            logger.error(f"Error adjusting expected returns: {e}")
+    
+    async def _trigger_defensive_rebalancing(self):
+        """Trigger defensive portfolio rebalancing."""
+        try:
+            # Increase cash allocation, reduce risk assets
+            defensive_allocation = {
+                'cash': 0.5,  # Increase cash
+                'bonds': 0.3,  # Stable bonds
+                'stocks': 0.15,  # Reduce stocks
+                'alternatives': 0.03,  # Minimal alternatives
+                'derivatives': 0.02   # Minimal derivatives
+            }
+            
+            # Update current portfolio to defensive allocation
+            self.current_portfolio.update(defensive_allocation)
+            logger.info("Applied defensive portfolio allocation")
+            
+        except Exception as e:
+            logger.error(f"Error in defensive rebalancing: {e}")
+    
+    def _update_liquidity_constraints(self, low_liquidity_symbols: List[Dict[str, Any]]):
+        """Update liquidity constraints based on market alerts."""
+        try:
+            # Extract symbols with liquidity issues
+            symbols_to_avoid = [item.get('symbol', '') for item in low_liquidity_symbols]
+            
+            # Map to asset classes and reduce allocations
+            for symbol in symbols_to_avoid:
+                asset_class = self._map_symbol_to_asset_class(symbol)
+                if asset_class and asset_class in self.current_portfolio:
+                    # Reduce allocation by 10%
+                    current_allocation = self.current_portfolio[asset_class]
+                    self.current_portfolio[asset_class] = max(0.01, current_allocation * 0.9)
+                    
+            logger.debug(f"Updated allocations for {len(symbols_to_avoid)} symbols with liquidity concerns")
+            
+        except Exception as e:
+            logger.error(f"Error updating liquidity constraints: {e}")
+    
+    async def request_trading_signals(self):
+        """Request trading signals from MMEA."""
+        try:
+            request_message = Message(
+                type="trading_signal_request",
+                sender_id=self.agent_id,
+                content={"request_type": "current_signals"}
+            )
+            
+            if self.message_bus:
+                await self.message_bus.publish(request_message)
+                logger.debug("Requested trading signals from MMEA")
+                
+        except Exception as e:
+            logger.error(f"Error requesting trading signals: {e}")
+    
+    async def request_risk_assessment(self):
+        """Request risk assessment from MMEA."""
+        try:
+            request_message = Message(
+                type="risk_assessment_request",
+                sender_id=self.agent_id,
+                content={"request_type": "current_risk"}
+            )
+            
+            if self.message_bus:
+                await self.message_bus.publish(request_message)
+                logger.debug("Requested risk assessment from MMEA")
+                
+        except Exception as e:
+            logger.error(f"Error requesting risk assessment: {e}") 

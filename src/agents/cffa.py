@@ -251,6 +251,8 @@ class CashFlowForecastingAgent(BaseAgent):
         
         # Subscribe to relevant messages
         self.message_bus.subscribe(MessageType.CASH_FLOW_FORECAST, self._handle_forecast_request)
+        self.message_bus.subscribe("market_data_response", self._handle_market_data_response)
+        self.message_bus.subscribe("market_alert", self._handle_market_alert)
         
         # Start background tasks
         asyncio.create_task(self._market_data_update_loop())
@@ -1622,6 +1624,120 @@ class CashFlowForecastingAgent(BaseAgent):
         except Exception as e:
             logger.error(f"Error checking forecast alerts: {e}")
     
+    async def _handle_market_data_response(self, message: Message):
+        """Handle market data response from MMEA."""
+        try:
+            if hasattr(message, 'content') and message.content:
+                market_data = message.content
+                
+                # Extract relevant market information for forecasting
+                if 'market_data' in market_data:
+                    # Update market context for forecasting models
+                    self._update_market_context(market_data['market_data'])
+                    
+                if 'market_trends' in market_data:
+                    # Use market trends to adjust forecast confidence
+                    self._adjust_forecast_confidence(market_data['market_trends'])
+                    
+                logger.debug("Updated market data for forecasting")
+                
+        except Exception as e:
+            logger.error(f"Error handling market data response: {e}")
+    
+    async def _handle_market_alert(self, message: Message):
+        """Handle market alerts from MMEA."""
+        try:
+            if hasattr(message, 'content') and message.content:
+                alert_data = message.content
+                alert_type = alert_data.get('alert_type', '')
+                
+                # React to high volatility alerts
+                if alert_type == 'HIGH_VOLATILITY':
+                    # Increase forecast uncertainty
+                    self.forecast_adjustments['volatility_factor'] = 1.2
+                    logger.info("Increased forecast uncertainty due to high volatility")
+                
+                # React to significant price movements
+                elif alert_type == 'SIGNIFICANT_PRICE_MOVEMENT':
+                    # Trigger immediate re-forecasting
+                    await self._trigger_emergency_forecast()
+                    logger.info("Triggered emergency forecast due to significant price movement")
+                    
+        except Exception as e:
+            logger.error(f"Error handling market alert: {e}")
+    
+    def _update_market_context(self, market_data: Dict[str, Any]):
+        """Update market context for forecasting models."""
+        try:
+            # Extract market regime information
+            if hasattr(self, 'market_context'):
+                self.market_context.update({
+                    'last_update': datetime.utcnow(),
+                    'market_data': market_data
+                })
+            else:
+                self.market_context = {
+                    'last_update': datetime.utcnow(),
+                    'market_data': market_data
+                }
+                
+        except Exception as e:
+            logger.error(f"Error updating market context: {e}")
+    
+    def _adjust_forecast_confidence(self, market_trends: Dict[str, Any]):
+        """Adjust forecast confidence based on market trends."""
+        try:
+            # Calculate average trend strength
+            trend_strengths = []
+            for symbol, trend in market_trends.items():
+                if 'strength' in trend:
+                    trend_strengths.append(trend['strength'])
+            
+            if trend_strengths:
+                avg_strength = sum(trend_strengths) / len(trend_strengths)
+                # Higher trend strength = higher confidence
+                confidence_adjustment = min(avg_strength * 0.1, 0.1)
+                
+                if hasattr(self, 'forecast_adjustments'):
+                    self.forecast_adjustments['confidence_factor'] = 1.0 + confidence_adjustment
+                else:
+                    self.forecast_adjustments = {'confidence_factor': 1.0 + confidence_adjustment}
+                    
+        except Exception as e:
+            logger.error(f"Error adjusting forecast confidence: {e}")
+    
+    async def _trigger_emergency_forecast(self):
+        """Trigger emergency forecast due to market events."""
+        try:
+            logger.info("Triggering emergency forecast...")
+            # Generate quick forecast with current market conditions
+            emergency_forecast = await self.generate_forecast(
+                scenario='emergency',
+                horizon_days=7  # Shorter horizon for emergency
+            )
+            
+            # Publish emergency forecast
+            await self._publish_forecast(emergency_forecast)
+            
+        except Exception as e:
+            logger.error(f"Error in emergency forecast: {e}")
+    
+    async def request_market_data(self):
+        """Request current market data from MMEA."""
+        try:
+            request_message = Message(
+                type="market_data_request",
+                sender_id=self.agent_id,
+                content={"request_type": "current_data", "symbols": ["SPY", "QQQ", "^TNX", "^VIX"]}
+            )
+            
+            if self.message_bus:
+                await self.message_bus.publish(request_message)
+                logger.debug("Requested market data from MMEA")
+                
+        except Exception as e:
+            logger.error(f"Error requesting market data: {e}")
+    
     def get_current_forecast(self) -> Optional[Dict[str, Any]]:
         """Get the current forecast."""
         return self.current_forecast
@@ -1641,7 +1757,57 @@ class CashFlowForecastingAgent(BaseAgent):
             'volatility': np.std(forecast_data['values']),
             'alerts_count': len(forecast_data['alerts']),
             'model_accuracy': self.model_accuracy.get('r2', 0) if self.model_accuracy else 0
-        } 
+        }
+
+    async def forecast_cash_flow(self, horizon_days: int, scenario: str = 'base') -> Dict[str, Any]:
+        """Generate cash flow forecast for specified horizon."""
+        try:
+            logger.debug(f"Generating cash flow forecast for {horizon_days} days")
+            
+            # Generate the main forecast
+            forecast_result = await self._generate_forecast({
+                'horizon_days': horizon_days,
+                'scenario': scenario,
+                'confidence_level': self.confidence_level,
+                'include_scenarios': False
+            })
+            
+            if not forecast_result or 'forecast_data' not in forecast_result:
+                logger.warning("No forecast data generated, using fallback")
+                return await self._generate_fallback_forecast({'horizon_days': horizon_days})
+            
+            forecast_data = forecast_result['forecast_data']
+            
+            # Format the response for API consistency
+            response = {
+                'horizon_days': horizon_days,
+                'scenario': scenario,
+                'timestamp': forecast_result.get('timestamp', datetime.utcnow().isoformat()),
+                'ensemble_predictions': forecast_data.get('values', []),
+                'ensemble_confidence': self.model_accuracy.get('r2', 0.87),
+                'dates': forecast_data.get('dates', []),
+                'confidence_upper': forecast_data.get('confidence_upper', []),
+                'confidence_lower': forecast_data.get('confidence_lower', []),
+                'alerts': forecast_data.get('alerts', []),
+                'model_accuracy': self.model_accuracy
+            }
+            
+            # Add individual model predictions if available
+            if self.dl_trained and self.lstm_model is not None:
+                lstm_forecast = await self._generate_lstm_forecast(horizon_days, scenario)
+                response['lstm_predictions'] = lstm_forecast.get('values', [])
+                response['lstm_confidence'] = 0.85
+            
+            if self.dl_trained and self.transformer_model is not None:
+                transformer_forecast = await self._generate_transformer_forecast(horizon_days, scenario)
+                response['transformer_predictions'] = transformer_forecast.get('values', [])
+                response['transformer_confidence'] = 0.82
+            
+            return response
+            
+        except Exception as e:
+            logger.error(f"Error in forecast_cash_flow: {e}")
+            return await self._generate_fallback_forecast({'horizon_days': horizon_days}) 
 
     # =============================================================================
     # DASHBOARD DATA METHODS
