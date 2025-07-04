@@ -552,6 +552,21 @@
         // Initialize Lucide icons
         lucide.createIcons();
 
+        // Function to format text with proper line breaks and styling
+        function formatResponse(text) {
+            if (!text) return '';
+            
+            // Convert newlines to HTML breaks
+            let formatted = text.replace(/\n/g, '<br>');
+            
+            // Add some basic styling for better readability
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Bold
+            formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>'); // Italic
+            formatted = formatted.replace(/•/g, '&bull;'); // Bullet points
+            
+            return formatted;
+        }
+
         // Chat functionality
         async function sendQuery() {
             const input = document.getElementById('userQuery');
@@ -581,14 +596,17 @@
                 const messages = chatHistory.querySelectorAll('div');
                 messages[messages.length - 1].remove();
                 
-                chatHistory.innerHTML += `<div class="mb-3"><span class="text-green-400">🤖 TAAA:</span> ${data.response || 'I understand your request. The advanced AI system is processing your query and will provide detailed insights shortly.'}</div>`;
+                // Format the response with proper line breaks and styling
+                const formattedResponse = formatResponse(data.response || 'I understand your request. The advanced AI system is processing your query and will provide detailed insights shortly.');
+                
+                chatHistory.innerHTML += `<div class="mb-3"><span class="text-green-400">🤖 TAAA:</span> <div class="mt-2 pl-4 border-l-2 border-green-400 text-gray-200 leading-relaxed">${formattedResponse}</div></div>`;
                 chatHistory.scrollTop = chatHistory.scrollHeight;
                 
             } catch (error) {
                 console.error('Chat error:', error);
                 const messages = chatHistory.querySelectorAll('div');
                 messages[messages.length - 1].remove();
-                chatHistory.innerHTML += `<div class="mb-3"><span class="text-green-400">🤖 TAAA:</span> I'm ready to help! The natural language interface is now operational. Try the example queries to see how I can assist with treasury management.</div>`;
+                chatHistory.innerHTML += `<div class="mb-3"><span class="text-green-400">🤖 TAAA:</span> <div class="mt-2 pl-4 border-l-2 border-green-400 text-gray-200 leading-relaxed">I'm ready to help! The natural language interface is now operational. Try the example queries to see how I can assist with treasury management.</div></div>`;
                 chatHistory.scrollTop = chatHistory.scrollHeight;
             }
         }
