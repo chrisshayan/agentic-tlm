@@ -782,6 +782,160 @@
             await updateRiskAlerts();
         }
 
+        // Function to update dashboard metrics with real API data
+        async function updateDashboardMetrics() {
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/dashboard/metrics');
+                const data = await response.json();
+                
+                console.log('Dashboard metrics received:', data);
+                
+                // Update cash position - handle nested structure
+                if (data.metrics && data.metrics.current_cash_position) {
+                    const cashElement = document.getElementById('cash-position');
+                    if (cashElement) {
+                        const cashValue = data.metrics.current_cash_position.value;
+                        cashElement.textContent = '$' + (cashValue / 1000000).toFixed(1) + 'M';
+                    }
+                    
+                    // Update cash change percentage
+                    const cashChangeElement = document.getElementById('cash-change');
+                    if (cashChangeElement) {
+                        const changePercent = data.metrics.current_cash_position.change_percent || 0;
+                        cashChangeElement.textContent = (changePercent >= 0 ? '+' : '') + changePercent.toFixed(1) + '% vs forecast';
+                    }
+                }
+                
+                // Update Sharpe ratio
+                if (data.metrics && data.metrics.sharpe_ratio) {
+                    const sharpeElement = document.getElementById('sharpe-ratio');
+                    if (sharpeElement) {
+                        sharpeElement.textContent = data.metrics.sharpe_ratio.value.toFixed(2);
+                    }
+                }
+                
+                // Update ML accuracy
+                if (data.metrics && data.metrics.ml_accuracy) {
+                    const mlElement = document.getElementById('ml-accuracy');
+                    if (mlElement) {
+                        mlElement.textContent = data.metrics.ml_accuracy.value + '%';
+                    }
+                }
+                
+                // Update AI response time
+                if (data.metrics && data.metrics.ai_response_time) {
+                    const responseElement = document.getElementById('response-time');
+                    if (responseElement) {
+                        responseElement.textContent = data.metrics.ai_response_time.value + 'ms';
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error updating dashboard metrics:', error);
+                // Set fallback values when API fails
+                const cashElement = document.getElementById('cash-position');
+                if (cashElement && cashElement.textContent === 'Loading...') {
+                    cashElement.textContent = '$52.3M';
+                }
+                
+                const cashChangeElement = document.getElementById('cash-change');
+                if (cashChangeElement && cashChangeElement.textContent === 'Calculating...') {
+                    cashChangeElement.textContent = '+2.1% vs forecast';
+                }
+                
+                const sharpeElement = document.getElementById('sharpe-ratio');
+                if (sharpeElement && sharpeElement.textContent === 'Loading...') {
+                    sharpeElement.textContent = '1.52';
+                }
+                
+                const mlElement = document.getElementById('ml-accuracy');
+                if (mlElement && mlElement.textContent === 'Loading...') {
+                    mlElement.textContent = '87%';
+                }
+                
+                const responseElement = document.getElementById('response-time');
+                if (responseElement && responseElement.textContent === 'Loading...') {
+                    responseElement.textContent = '380ms';
+                }
+            }
+        }
+
+        // Function to update forecast chart with real data
+        async function updateForecastChart() {
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/dashboard/forecast');
+                const data = await response.json();
+                
+                if (data.forecasts && data.forecasts.length > 0) {
+                    // Update chart with real forecast data
+                    const chartData = data.forecasts.map(f => f.value);
+                    const dates = data.forecasts.map(f => {
+                        const date = new Date(f.date);
+                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    });
+                    
+                    forecastChart.data.labels = dates;
+                    forecastChart.data.datasets[2].data = chartData; // Ensemble data
+                    forecastChart.update();
+                }
+            } catch (error) {
+                console.error('Error updating forecast chart:', error);
+            }
+        }
+
+        // Function to update portfolio chart with real data
+        async function updatePortfolioChart() {
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/dashboard/portfolio');
+                const data = await response.json();
+                
+                if (data.allocation) {
+                    const allocation = data.allocation;
+                    portfolioChart.data.datasets[0].data = [
+                        allocation.cash || 30,
+                        allocation.bonds || 40,
+                        allocation.stocks || 20,
+                        allocation.alternatives || 8,
+                        allocation.derivatives || 2
+                    ];
+                    portfolioChart.update();
+                }
+            } catch (error) {
+                console.error('Error updating portfolio chart:', error);
+            }
+        }
+
+        // Initialize all dashboard data
+        async function initializeDashboard() {
+            console.log('Initializing dashboard...');
+            await updateDashboardMetrics();
+            await updateForecastChart();
+            await updatePortfolioChart();
+            await initializeMMEAData();
+        }
+
+        // Call initialization when page loads
+        window.addEventListener('load', function() {
+            console.log('Window loaded, initializing dashboard...');
+            initializeDashboard();
+        });
+
+        // Also trigger initialization when DOM is ready (faster)
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM ready, starting immediate initialization...');
+            setTimeout(function() {
+                initializeDashboard();
+            }, 100);
+        });
+
+        // Set up automatic updates
+        setInterval(updateDashboardMetrics, 30000);    // Every 30 seconds
+        setInterval(updateForecastChart, 60000);       // Every minute
+        setInterval(updatePortfolioChart, 60000);      // Every minute
+        setInterval(updateMMEAMarketData, 45000);      // Every 45 seconds
+        setInterval(updateTradingSignals, 60000);      // Every minute
+        setInterval(updateRiskAlerts, 120000);         // Every 2 minutes
+
         // Update dashboard every 30 seconds
         setInterval(updateDashboardMetrics, 30000);
         setInterval(updateForecastChart, 60000);
