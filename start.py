@@ -1437,6 +1437,17 @@ class TLMSystem:
             
             message_bus = orchestrator.message_bus
             
+            # Check orchestrator initial state
+            print(f"🔧 DEBUG: Orchestrator initial state - is_running: {orchestrator.is_running}")
+            
+            # Ensure orchestrator is started
+            if not orchestrator.is_running:
+                print("🔧 DEBUG: Starting orchestrator...")
+                await orchestrator.start()
+                print(f"🔧 DEBUG: Orchestrator started - is_running: {orchestrator.is_running}")
+            else:
+                print("🔧 DEBUG: Orchestrator already running")
+            
             agents = [
                 CashFlowForecastingAgent(message_bus),
                 MinimalLiquidityOptimizationAgent(message_bus),
@@ -1458,10 +1469,21 @@ class TLMSystem:
             
             async def monitor_orchestrator():
                 try:
+                    print("🔧 DEBUG: Starting orchestrator monitoring loop...")
+                    print(f"🔧 DEBUG: Initial orchestrator.is_running = {orchestrator.is_running}")
+                    loop_count = 0
                     while orchestrator.is_running:
                         await asyncio.sleep(1)
+                        loop_count += 1
+                        if loop_count % 30 == 0:  # Log every 30 seconds
+                            print(f"🔧 DEBUG: Orchestrator still running (loop {loop_count})")
+                    
+                    print(f"⚠️ WARNING: Orchestrator monitoring loop exited! orchestrator.is_running = {orchestrator.is_running}")
+                    print(f"🔧 DEBUG: Final loop count: {loop_count}")
                 except Exception as e:
-                    print(f"Orchestrator monitoring error: {e}")
+                    print(f"❌ Orchestrator monitoring error: {e}")
+                    import traceback
+                    traceback.print_exc()
                     
             return asyncio.create_task(monitor_orchestrator())
             
@@ -1501,19 +1523,27 @@ class TLMSystem:
             print("\n🚀 Starting TLM System...")
             print("=" * 50)
             
+            # Start TLM system FIRST so agents are available for API
+            print("🤖 Starting TLM system and agents first...")
+            tlm_task = await self.start_tlm_system()
+            if not tlm_task:
+                print("❌ Failed to start TLM system")
+                return
+            
+            # Give agents a moment to fully initialize
+            await asyncio.sleep(2)
+            print("✅ TLM agents fully initialized, now starting API server...")
+            
+            # Now start API server - TAAA agent will be available
             api_task = await self.start_api_server()
             if not api_task:
                 print("❌ Failed to start API server")
                 return
             
+            # Start web server
             web_server = self.start_web_server()
             if not web_server:
                 print("❌ Failed to start web server")
-                return
-            
-            tlm_task = await self.start_tlm_system()
-            if not tlm_task:
-                print("❌ Failed to start TLM system")
                 return
             
             self.open_browser()
@@ -1543,12 +1573,36 @@ class TLMSystem:
                 tasks = []
                 if api_task:
                     tasks.append(api_task)
+                    print(f"🔧 DEBUG: Added API task to monitoring")
                 if tlm_task:
                     tasks.append(tlm_task)
+                    print(f"🔧 DEBUG: Added TLM task to monitoring")
+                
+                print(f"🔧 DEBUG: Total tasks to monitor: {len(tasks)}")
                 
                 if tasks:
-                    await asyncio.gather(*tasks)
+                    print("🔧 DEBUG: Starting task monitoring with asyncio.gather...")
+                    # Add individual task monitoring with better error handling
+                    async def monitor_task(task, name):
+                        try:
+                            await task
+                            print(f"⚠️ WARNING: {name} task completed unexpectedly!")
+                        except Exception as e:
+                            print(f"❌ ERROR: {name} task failed: {e}")
+                            import traceback
+                            traceback.print_exc()
+                    
+                    # Monitor each task individually
+                    monitoring_tasks = []
+                    if api_task:
+                        monitoring_tasks.append(monitor_task(api_task, "API Server"))
+                    if tlm_task:
+                        monitoring_tasks.append(monitor_task(tlm_task, "TLM System"))
+                    
+                    print(f"🔧 DEBUG: Starting {len(monitoring_tasks)} monitoring tasks...")
+                    await asyncio.gather(*monitoring_tasks, return_exceptions=True)
                 else:
+                    print("🔧 DEBUG: No tasks to monitor, entering infinite loop...")
                     while True:
                         await asyncio.sleep(1)
                         

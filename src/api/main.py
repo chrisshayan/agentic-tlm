@@ -41,6 +41,8 @@ class ChatRequest(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan management."""
+    global taaa_agent
+    
     # Startup
     setup_logging()
     await orchestrator.start()
@@ -48,6 +50,105 @@ async def lifespan(app: FastAPI):
     # Start market data service
     from ..services.market_data_service import market_data_service
     await market_data_service.start()
+    
+    # Initialize TAAA agent connection
+    print("🚀 Starting Agentic TLM API Server - TAAA Initialization")
+    print("🔍 DEBUG: FastAPI lifespan startup triggered")
+    print(f"🔧 DEBUG: Current timestamp: {datetime.now().isoformat()}")
+    print(f"🔧 DEBUG: Global taaa_agent before search: {taaa_agent}")
+    print(f"🔧 DEBUG: Orchestrator object: {orchestrator}")
+    print(f"🔧 DEBUG: Orchestrator is_running: {orchestrator.is_running}")
+    
+    # Wait for the main system's TAAA agent to be available
+    print("📝 Waiting for main system TAAA agent to be available...")
+    print(f"🔧 DEBUG: Current orchestrator.agents keys: {list(orchestrator.agents.keys())}")
+    print(f"🔧 DEBUG: Orchestrator agents count: {len(orchestrator.agents)}")
+    
+    # Debug: List all agents in orchestrator
+    print("🔧 DEBUG: All agents in orchestrator:")
+    for agent_id, agent in orchestrator.agents.items():
+        agent_name = getattr(agent, 'agent_name', 'UNKNOWN')
+        agent_type = type(agent).__name__
+        print(f"  - ID: {agent_id}, Name: {agent_name}, Type: {agent_type}")
+    
+    max_attempts = 30  # Wait up to 30 seconds
+    for attempt in range(max_attempts):
+        try:
+            print(f"🔧 DEBUG: Attempt {attempt + 1}/{max_attempts}")
+            print(f"🔧 DEBUG: orchestrator.agents keys: {list(orchestrator.agents.keys())}")
+            
+            # Check if orchestrator has a TAAA agent
+            if 'taaa' in orchestrator.agents:
+                main_taaa = orchestrator.agents['taaa']
+                print(f"🔧 DEBUG: Found 'taaa' key in orchestrator.agents")
+                print(f"🔧 DEBUG: main_taaa type: {type(main_taaa)}")
+                print(f"🔧 DEBUG: main_taaa is None: {main_taaa is None}")
+                
+                if main_taaa and hasattr(main_taaa, 'agent_name'):
+                    print(f"🔧 DEBUG: main_taaa.agent_name: '{main_taaa.agent_name}'")
+                    print(f"🔧 DEBUG: Expected name: 'Treasury AI Assistant Agent'")
+                    print(f"🔧 DEBUG: Names match: {main_taaa.agent_name == 'Treasury AI Assistant Agent'}")
+                    
+                    # Check for partial matches in case the name is slightly different
+                    if "Treasury" in main_taaa.agent_name or "TAAA" in main_taaa.agent_name:
+                        taaa_agent = main_taaa
+                        print(f"✅ Found TAAA agent with name: '{main_taaa.agent_name}' after {attempt + 1} attempts")
+                        print(f"🔧 DEBUG: Using main system TAAA agent: {type(taaa_agent)}")
+                        print(f"🔧 DEBUG: taaa_agent is None? {taaa_agent is None}")
+                        print(f"🔧 DEBUG: Global taaa_agent variable set successfully")
+                        print(f"🔧 DEBUG: taaa_agent has process_natural_language_query: {hasattr(taaa_agent, 'process_natural_language_query')}")  # type: ignore
+                        break
+                    else:
+                        print(f"🔧 DEBUG: Agent name mismatch: '{main_taaa.agent_name}' doesn't contain 'Treasury' or 'TAAA'")
+                else:
+                    print(f"🔧 DEBUG: main_taaa is None or doesn't have agent_name attribute")
+                    if main_taaa:
+                        print(f"🔧 DEBUG: main_taaa attributes: {[attr for attr in dir(main_taaa) if not attr.startswith('_')]}")
+            else:
+                print(f"🔧 DEBUG: 'taaa' key not found in orchestrator.agents")
+                print(f"🔧 DEBUG: Available keys: {list(orchestrator.agents.keys())}")
+            
+            # If not found, wait a bit and try again
+            if attempt < max_attempts - 1:
+                print(f"⏳ TAAA not ready yet, waiting... (attempt {attempt + 1}/{max_attempts})")
+                await asyncio.sleep(1)
+            else:
+                print("❌ Timeout waiting for main system TAAA agent")
+                taaa_agent = None
+                
+        except Exception as e:
+            print(f"⚠️ Error checking for TAAA agent: {e}")
+            import traceback
+            print(f"🔍 Full traceback: {traceback.format_exc()}")
+            if attempt < max_attempts - 1:
+                await asyncio.sleep(1)
+            else:
+                taaa_agent = None
+    
+    if taaa_agent:
+        print("✅ API successfully connected to main system TAAA agent")
+        print(f"🔧 DEBUG: Final taaa_agent type: {type(taaa_agent)}")
+        print(f"🔧 DEBUG: Final taaa_agent.agent_name: {getattr(taaa_agent, 'agent_name', 'NO_NAME')}")
+        print(f"🔧 DEBUG: Final taaa_agent methods: {[m for m in dir(taaa_agent) if 'process' in m.lower()]}")
+    else:
+        print("❌ Failed to connect to main system TAAA agent - will create fallback")
+        
+        # Create a minimal fallback TAAA agent
+        try:
+            print("📝 Creating fallback TAAA agent...")
+            from src.agents.taaa import TreasuryAssistantAgent
+            from src.core.message_bus import MessageBus
+            api_message_bus = MessageBus()
+            taaa_agent = TreasuryAssistantAgent(message_bus=api_message_bus)
+            await taaa_agent._initialize()
+            print("✅ Fallback TAAA agent created successfully")
+            print(f"🔧 DEBUG: Fallback taaa_agent type: {type(taaa_agent)}")
+            print(f"🔧 DEBUG: Fallback taaa_agent.agent_name: {getattr(taaa_agent, 'agent_name', 'NO_NAME')}")
+        except Exception as e:
+            print(f"❌ Fallback TAAA creation failed: {e}")
+            import traceback
+            print(f"🔍 Full traceback: {traceback.format_exc()}")
+            taaa_agent = None
     
     yield
     
@@ -155,65 +256,22 @@ def create_app() -> FastAPI:
 app = create_app()
 
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize services on startup."""
-    global taaa_agent
-    print("🚀 Starting Agentic TLM API Server - TAAA Initialization")
-    print("🔍 DEBUG: FastAPI startup event triggered")
-    
-    # Wait for the main system's TAAA agent to be available
-    print("📝 Waiting for main system TAAA agent to be available...")
-    
-    max_attempts = 30  # Wait up to 30 seconds
-    for attempt in range(max_attempts):
-        try:
-            # Check if orchestrator has a TAAA agent
-            if 'taaa' in orchestrator.agents:
-                main_taaa = orchestrator.agents['taaa']
-                if main_taaa and main_taaa.agent_name == "Treasury AI Assistant Agent":
-                    taaa_agent = main_taaa
-                    print(f"✅ Found existing TAAA agent in orchestrator after {attempt + 1} attempts")
-                    print(f"🔧 DEBUG: Using main system TAAA agent: {type(taaa_agent)}")
-                    print(f"🔧 DEBUG: taaa_agent is None? {taaa_agent is None}")
-                    break
-            
-            # If not found, wait a bit and try again
-            if attempt < max_attempts - 1:
-                print(f"⏳ TAAA not ready yet, waiting... (attempt {attempt + 1}/{max_attempts})")
-                await asyncio.sleep(1)
-            else:
-                print("❌ Timeout waiting for main system TAAA agent")
-                taaa_agent = None
-                
-        except Exception as e:
-            print(f"⚠️ Error checking for TAAA agent: {e}")
-            if attempt < max_attempts - 1:
-                await asyncio.sleep(1)
-            else:
-                taaa_agent = None
-    
-    if taaa_agent:
-        print("✅ API successfully connected to main system TAAA agent")
-    else:
-        print("❌ Failed to connect to main system TAAA agent - will create fallback")
-        
-        # Create a minimal fallback TAAA agent
-        try:
-            print("📝 Creating fallback TAAA agent...")
-            from src.core.message_bus import MessageBus
-            api_message_bus = MessageBus()
-            taaa_agent = TreasuryAssistantAgent(message_bus=api_message_bus)
-            await taaa_agent._initialize()
-            print("✅ Fallback TAAA agent created successfully")
-        except Exception as e:
-            print(f"❌ Fallback TAAA creation failed: {e}")
-            taaa_agent = None
+# The startup logic has been moved to the lifespan context manager above
 
 
 @app.get("/api/health")
 async def health_endpoint():
     """Health check endpoint for system status."""
+    global taaa_agent
+    
+    # Debug the current taaa_agent state
+    taaa_status = {
+        "is_none": taaa_agent is None,
+        "type": str(type(taaa_agent)) if taaa_agent else "None",
+        "agent_name": getattr(taaa_agent, 'agent_name', 'NO_NAME') if taaa_agent else "N/A",
+        "has_process_method": hasattr(taaa_agent, 'process_natural_language_query') if taaa_agent else False
+    }
+    
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
@@ -222,7 +280,9 @@ async def health_endpoint():
             "total": 6,
             "online": 6,
             "taaa_available": taaa_agent is not None
-        }
+        },
+        "taaa_debug": taaa_status,
+        "orchestrator_agents": list(orchestrator.agents.keys()) if orchestrator.agents else []
     }
 
 
@@ -239,6 +299,10 @@ async def chat_endpoint(request: ChatRequest):
         user_id = request.user_id or "default"
         session_id = request.session_id
         
+        print(f"🔍 DEBUG: Chat endpoint called with query: '{query[:50]}...'")
+        print(f"🔧 DEBUG: taaa_agent is None: {taaa_agent is None}")
+        print(f"🔧 DEBUG: taaa_agent type: {type(taaa_agent) if taaa_agent else 'None'}")
+        
         if not query:
             return {
                 "response": "Please provide a query to process.",
@@ -249,6 +313,7 @@ async def chat_endpoint(request: ChatRequest):
         
         # Process with TAAA - this is now required, no fallbacks
         if not taaa_agent:
+            print("❌ DEBUG: TAAA agent is None - returning error")
             return {
                 "response": "TAAA agent is not initialized. Please check the system logs for initialization errors.",
                 "error": "TAAA agent unavailable",
@@ -258,19 +323,22 @@ async def chat_endpoint(request: ChatRequest):
             }
         
         try:
-            print(f"DEBUG: Processing query with TAAA agent: '{query}'")
-            response_data = await taaa_agent.process_natural_language_query(
+            print(f"🔍 DEBUG: Processing query with TAAA agent: '{query}'")
+            print(f"🔧 DEBUG: TAAA agent has process_natural_language_query: {hasattr(taaa_agent, 'process_natural_language_query')}")
+            
+            response_data = await taaa_agent.process_natural_language_query(  # type: ignore
                 query=query,
                 user_id=user_id,
                 session_id=session_id or "default"
             )
-            print(f"DEBUG: TAAA response type: {response_data.get('intent', 'unknown')}")
-            print(f"DEBUG: TAAA response: {response_data.get('response', 'no response')[:100]}...")
+            print(f"🔍 DEBUG: TAAA response type: {response_data.get('intent', 'unknown')}")
+            print(f"🔍 DEBUG: TAAA response: {response_data.get('response', 'no response')[:100]}...")
             
             # If TAAA returns a response, use it
             if response_data and response_data.get('response'):
                 return response_data
             else:
+                print("⚠️ DEBUG: TAAA returned empty or invalid response")
                 return {
                     "response": "TAAA agent processed the query but returned no response. This may indicate an OpenAI integration issue.",
                     "error": "Empty TAAA response",
@@ -280,9 +348,9 @@ async def chat_endpoint(request: ChatRequest):
                 }
                 
         except Exception as e:
-            print(f"DEBUG: TAAA processing error: {e}")
+            print(f"❌ DEBUG: TAAA processing error: {e}")
             import traceback
-            print(f"DEBUG: Full traceback: {traceback.format_exc()}")
+            print(f"🔍 DEBUG: Full traceback: {traceback.format_exc()}")
             
             return {
                 "response": f"TAAA agent encountered an error: {str(e)}. This may indicate an OpenAI API issue or configuration problem.",
@@ -293,9 +361,9 @@ async def chat_endpoint(request: ChatRequest):
             }
         
     except Exception as e:
-        print(f"DEBUG: Chat endpoint error: {e}")
+        print(f"❌ DEBUG: Chat endpoint error: {e}")
         import traceback
-        print(f"DEBUG: Full traceback: {traceback.format_exc()}")
+        print(f"🔍 DEBUG: Full traceback: {traceback.format_exc()}")
         
         return {
             "response": f"Chat endpoint encountered an error: {str(e)}. Please check the system configuration.",
