@@ -143,6 +143,9 @@ class AgentOrchestrator:
             await self.security_manager.cleanup()
             await self.message_bus.stop()
             
+            # Give async tasks time to cleanup
+            await asyncio.sleep(0.5)
+            
             logger.info("Agent orchestrator stopped successfully")
             
         except Exception as e:

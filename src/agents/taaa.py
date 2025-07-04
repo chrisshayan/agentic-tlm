@@ -13,13 +13,32 @@ from datetime import datetime, timedelta
 from dataclasses import dataclass
 import time
 
-# Natural Language Processing imports
-import spacy
-import nltk
-from nltk.tokenize import word_tokenize, sent_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from nltk.sentiment import SentimentIntensityAnalyzer
+# Core imports (required)
+from .base_agent import BaseAgent, AgentStatus
+from ..core.message_bus import Message, MessageType
+from ..config.settings import settings
+from ..config.logging import get_logger
+
+logger = get_logger(__name__)
+
+# Natural Language Processing imports (optional)
+try:
+    import spacy
+    SPACY_AVAILABLE = True
+except ImportError:
+    SPACY_AVAILABLE = False
+    logger.warning("spaCy not available - using basic NLP processing")
+
+try:
+    import nltk
+    from nltk.tokenize import word_tokenize, sent_tokenize
+    from nltk.corpus import stopwords
+    from nltk.stem import WordNetLemmatizer
+    from nltk.sentiment import SentimentIntensityAnalyzer
+    NLTK_AVAILABLE = True
+except ImportError:
+    NLTK_AVAILABLE = False
+    logger.warning("NLTK not available - using basic text processing")
 
 # Optional imports with fallback handling
 try:
@@ -27,32 +46,37 @@ try:
     SENTENCE_TRANSFORMERS_AVAILABLE = True
 except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
+    logger.warning("SentenceTransformers not available - using pattern matching only")
 
 try:
     from langchain.llms import OpenAI
     from langchain.chat_models import ChatOpenAI, ChatAnthropic
     from langchain.schema import HumanMessage
+    from langchain.prompts import PromptTemplate, ChatPromptTemplate
+    from langchain.chains import LLMChain, ConversationChain
+    from langchain.memory import ConversationBufferMemory, ConversationSummaryBufferMemory
+    from langchain.agents import initialize_agent, Tool, AgentType
+    from langchain.schema import AIMessage, SystemMessage
     LANGCHAIN_AVAILABLE = True
+    logger.info("LangChain available for LLM integration")
 except ImportError:
     LANGCHAIN_AVAILABLE = False
+    logger.warning("LangChain not available - using fallback responses")
 
-# LLM Integration imports
-import openai
-import anthropic
-from langchain.llms import OpenAI
-from langchain.chat_models import ChatOpenAI, ChatAnthropic
-from langchain.prompts import PromptTemplate, ChatPromptTemplate
-from langchain.chains import LLMChain, ConversationChain
-from langchain.memory import ConversationBufferMemory, ConversationSummaryBufferMemory
-from langchain.agents import initialize_agent, Tool, AgentType
-from langchain.schema import HumanMessage, AIMessage, SystemMessage
+# LLM provider imports (optional)
+try:
+    import openai
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+    logger.warning("OpenAI library not available")
 
-from .base_agent import BaseAgent, AgentStatus
-from ..core.message_bus import Message, MessageType
-from ..config.settings import settings
-from ..config.logging import get_logger
-
-logger = get_logger(__name__)
+try:
+    import anthropic
+    ANTHROPIC_AVAILABLE = True
+except ImportError:
+    ANTHROPIC_AVAILABLE = False
+    logger.warning("Anthropic library not available")
 
 
 @dataclass
@@ -85,6 +109,7 @@ class IntentClassifier:
         }
         
         # Load semantic similarity model if available
+        self.use_semantic = False
         if SENTENCE_TRANSFORMERS_AVAILABLE:
             try:
                 self.sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -97,59 +122,118 @@ class IntentClassifier:
             self.use_semantic = False
             logger.warning("SentenceTransformers not available. Using pattern matching only.")
         
-        # Initialize NLTK components
+        # Initialize NLTK components - make this fault-tolerant
+        self.lemmatizer = None
+        self.stop_words = set()
+        
         try:
-            nltk.download('punkt', quiet=True)
-            nltk.download('stopwords', quiet=True)
-            nltk.download('wordnet', quiet=True)
-            self.lemmatizer = WordNetLemmatizer()
-            self.stop_words = set(stopwords.words('english'))
+            import nltk
+            # Try to download required data quietly
+            try:
+                nltk.download('punkt', quiet=True)
+                nltk.download('stopwords', quiet=True)
+                nltk.download('wordnet', quiet=True)
+                from nltk.stem import WordNetLemmatizer
+                from nltk.corpus import stopwords
+                
+                self.lemmatizer = WordNetLemmatizer()
+                self.stop_words = set(stopwords.words('english'))
+                logger.info("✅ NLTK components initialized successfully")
+            except Exception as e:
+                logger.warning(f"⚠️ NLTK data/components initialization failed (continuing with basic functionality): {e}")
+                self.lemmatizer = None
+                self.stop_words = set()
+        except ImportError:
+            logger.warning("⚠️ NLTK not available (using basic pattern matching only)")
+            self.lemmatizer = None
+            self.stop_words = set()
         except Exception as e:
-            logger.warning(f"NLTK initialization warning: {e}")
+            logger.warning(f"⚠️ Unexpected NLTK error (using basic pattern matching only): {e}")
             self.lemmatizer = None
             self.stop_words = set()
     
     def classify_intent(self, text: str) -> Tuple[str, float]:
-        """Classify the intent of the input text."""
-        text_lower = text.lower()
+        """Classify the intent of the input text with fault-tolerant NLP processing."""
+        try:
+            # Normalize text
+            text = text.lower().strip()
+            
+            # Tokenize and process text if NLTK is available
+            if self.lemmatizer is not None:
+                try:
+                    from nltk.tokenize import word_tokenize
+                    tokens = word_tokenize(text)
+                    # Remove stopwords and lemmatize if available
+                    processed_tokens = [
+                        self.lemmatizer.lemmatize(token.lower()) 
+                        for token in tokens 
+                        if token.lower() not in self.stop_words and token.isalpha()
+                    ]
+                    processed_text = ' '.join(processed_tokens)
+                except Exception as e:
+                    logger.warning(f"⚠️ NLTK processing failed, using raw text: {e}")
+                    processed_text = text
+            else:
+                # Fallback to simple processing
+                processed_text = text
+            
+            # Use semantic similarity if available
+            if self.use_semantic:
+                try:
+                    return self._classify_with_semantic_similarity(processed_text)
+                except Exception as e:
+                    logger.warning(f"⚠️ Semantic classification failed, falling back to pattern matching: {e}")
+            
+            # Fall back to pattern matching
+            return self._classify_with_patterns(processed_text)
+            
+        except Exception as e:
+            logger.error(f"❌ Intent classification failed: {e}")
+            return 'general', 0.5  # Default intent with moderate confidence
+    
+    def _classify_with_semantic_similarity(self, text: str) -> Tuple[str, float]:
+        """Classify intent using semantic similarity."""
+        intent_examples = {
+            'forecast': "What is the cash flow forecast for next month?",
+            'portfolio': "How should I optimize my portfolio allocation?",
+            'risk': "What is the current VaR of our positions?",
+            'market': "What are the current market conditions?",
+            'compliance': "Generate the LCR report for regulatory submission",
+            'status': "What is the current system status?"
+        }
+        
+        try:
+            text_embedding = self.sentence_model.encode([text])
+            
+            best_intent = 'unknown'
+            max_similarity = 0.0
+            
+            for intent, example in intent_examples.items():
+                example_embedding = self.sentence_model.encode([example])
+                similarity = self.sentence_model.similarity(text_embedding, example_embedding)[0][0]
+                
+                if similarity > max_similarity:
+                    max_similarity = similarity
+                    best_intent = intent
+            
+            return best_intent, float(max_similarity)
+        except Exception as e:
+            logger.debug(f"Semantic similarity failed: {e}")
+            return 'unknown', 0.0
+    
+    def _classify_with_patterns(self, text: str) -> Tuple[str, float]:
+        """Classify intent using pattern matching."""
         intent_scores = {}
         
-        # Pattern-based classification
         for intent, patterns in self.intent_patterns.items():
             score = 0
             for pattern in patterns:
-                matches = len(re.findall(pattern, text_lower))
+                matches = len(re.findall(pattern, text))
                 score += matches
             
             if score > 0:
                 intent_scores[intent] = score / len(patterns)
         
-        # Semantic similarity (if available)
-        if self.use_semantic and self.sentence_model:
-            intent_examples = {
-                'forecast': "What is the cash flow forecast for next month?",
-                'portfolio': "How should I optimize my portfolio allocation?",
-                'risk': "What is the current VaR of our positions?",
-                'market': "What are the current market conditions?",
-                'compliance': "Generate the LCR report for regulatory submission",
-                'status': "What is the current system status?"
-            }
-            
-            try:
-                text_embedding = self.sentence_model.encode([text])
-                
-                for intent, example in intent_examples.items():
-                    example_embedding = self.sentence_model.encode([example])
-                    similarity = self.sentence_model.similarity(text_embedding, example_embedding)[0][0]
-                    
-                    if intent in intent_scores:
-                        intent_scores[intent] = max(intent_scores[intent], float(similarity))
-                    else:
-                        intent_scores[intent] = float(similarity)
-            except Exception as e:
-                logger.debug(f"Semantic similarity failed: {e}")
-        
-        # Return the highest scoring intent
         if intent_scores:
             best_intent = max(intent_scores.keys(), key=lambda k: intent_scores[k])
             confidence = intent_scores[best_intent]
@@ -166,39 +250,107 @@ class LLMOrchestrator:
         # Initialize conversation memory (will be set up when LLM is available)
         self.conversation_memory = None
         
+        # Debug: Log current settings
+        logger.info("=" * 60)
+        logger.info("🔍 TAAA LLM Orchestrator - Debug Initialization")
+        logger.info("=" * 60)
+        
+        # Check if LangChain is available
+        if not LANGCHAIN_AVAILABLE:
+            logger.warning("❌ LangChain not available - using fallback responses only")
+            self.models['fallback'] = None
+            logger.info("=" * 60)
+            return
+        
+        # Debug OpenAI configuration
+        openai_key_status = "NOT_SET"
+        if settings.openai_api_key:
+            if settings.openai_api_key == "your_openai_api_key_here":
+                openai_key_status = "PLACEHOLDER"
+            else:
+                openai_key_status = f"SET (starts with: {settings.openai_api_key[:10]}...)"
+        
+        logger.info(f"🔑 OpenAI API Key: {openai_key_status}")
+        logger.info(f"🤖 OpenAI Model: {settings.openai_model}")
+        logger.info(f"🌡️  OpenAI Temperature: {settings.openai_temperature}")
+        logger.info(f"📏 OpenAI Max Tokens: {settings.openai_max_tokens}")
+        
         # Initialize OpenAI
-        if settings.openai_api_key and settings.openai_api_key != "your_openai_api_key_here":
+        if OPENAI_AVAILABLE and settings.openai_api_key and settings.openai_api_key != "your_openai_api_key_here":
             try:
+                logger.info("🚀 Attempting to initialize OpenAI ChatOpenAI...")
                 self.models['openai'] = ChatOpenAI(
                     openai_api_key=settings.openai_api_key,
                     model_name=settings.openai_model,
                     temperature=settings.openai_temperature,
                     max_tokens=settings.openai_max_tokens
                 )
-                logger.info("OpenAI model initialized")
+                logger.info("✅ OpenAI model initialized successfully!")
             except Exception as e:
-                logger.warning(f"OpenAI initialization failed: {e}")
+                logger.error(f"❌ OpenAI initialization failed: {e}")
+                logger.error(f"🔧 OpenAI error type: {type(e).__name__}")
+                import traceback
+                logger.error(f"🔍 Full traceback: {traceback.format_exc()}")
+        else:
+            if not OPENAI_AVAILABLE:
+                logger.warning("⚠️  OpenAI library not available")
+            else:
+                logger.warning("⚠️  OpenAI API key not set or is placeholder value")
+        
+        # Debug Anthropic configuration
+        anthropic_key_status = "NOT_SET"
+        if settings.anthropic_api_key:
+            if settings.anthropic_api_key == "your_anthropic_api_key_here":
+                anthropic_key_status = "PLACEHOLDER"
+            else:
+                anthropic_key_status = f"SET (starts with: {settings.anthropic_api_key[:10]}...)"
+        
+        logger.info(f"🔑 Anthropic API Key: {anthropic_key_status}")
+        logger.info(f"🤖 Anthropic Model: {settings.anthropic_model}")
         
         # Initialize Anthropic
-        if settings.anthropic_api_key and settings.anthropic_api_key != "your_anthropic_api_key_here":
+        if ANTHROPIC_AVAILABLE and settings.anthropic_api_key and settings.anthropic_api_key != "your_anthropic_api_key_here":
             try:
+                logger.info("🚀 Attempting to initialize Anthropic ChatAnthropic...")
                 self.models['anthropic'] = ChatAnthropic(
                     anthropic_api_key=settings.anthropic_api_key,
                     model=settings.anthropic_model,
                     temperature=0.1
                 )
-                logger.info("Anthropic model initialized")
+                logger.info("✅ Anthropic model initialized successfully!")
             except Exception as e:
-                logger.warning(f"Anthropic initialization failed: {e}")
+                logger.error(f"❌ Anthropic initialization failed: {e}")
+                logger.error(f"🔧 Anthropic error type: {type(e).__name__}")
+        else:
+            if not ANTHROPIC_AVAILABLE:
+                logger.warning("⚠️  Anthropic library not available")
+            else:
+                logger.warning("⚠️  Anthropic API key not set or is placeholder value")
+        
+        # Debug final state
+        logger.info(f"🔧 Available models: {list(self.models.keys())}")
         
         # Default to a mock model if no real models available
         if not self.models:
-            logger.warning("No LLM models available, using fallback")
+            logger.warning("❌ No LLM models available, using fallback")
             self.models['fallback'] = None
+        else:
+            logger.info("✅ LLM models initialized successfully")
+        
+        logger.info("=" * 60)
     
     async def generate_response(self, query: str, context: Dict[str, Any] = None) -> str:
         """Generate a response using the best available model."""
         try:
+            logger.info("🔍 TAAA Generate Response - Debug")
+            logger.info(f"📝 Query: {query[:100]}...")
+            logger.info(f"🔧 Available models: {list(self.models.keys())}")
+            
+            # Check if LangChain is available
+            if not LANGCHAIN_AVAILABLE:
+                logger.warning("⚠️  LangChain not available, using fallback response")
+                return await self._generate_fallback_response(query, context or {})
+            
             # Choose the best model
             preferred_models = ['anthropic', 'openai', 'fallback']
             model = None
@@ -208,25 +360,66 @@ class LLMOrchestrator:
                 if pref in self.models:
                     model = self.models[pref]
                     model_name = pref
+                    logger.info(f"✅ Selected model: {model_name}")
                     break
             
             if model_name == 'fallback' or model is None:
-                return await self._generate_fallback_response(query, context)
+                logger.warning("⚠️  Using fallback response (no valid LLM models available)")
+                return await self._generate_fallback_response(query, context or {})
             
             # Create context-aware prompt
             prompt = self._create_context_prompt(query, context)
+            logger.info(f"🎯 Generated prompt length: {len(prompt)} characters")
+            logger.info(f"🎯 Prompt preview: {prompt[:200]}...")
             
             # Generate response
             if model_name in ['openai', 'anthropic'] and model is not None:
-                response = await model.agenerate([[HumanMessage(content=prompt)]])
-                return response.generations[0][0].text.strip()
+                logger.info(f"🚀 Generating response using {model_name}...")
+                logger.info(f"🔧 Model type: {type(model)}")
+                try:
+                    # Enhanced debugging for OpenAI/Anthropic calls
+                    logger.info("🔄 Calling model.agenerate()...")
+                    response = await model.agenerate([[HumanMessage(content=prompt)]])
+                    logger.info(f"✅ Model response received: {type(response)}")
+                    
+                    if response and hasattr(response, 'generations'):
+                        logger.info(f"🔍 Response generations: {len(response.generations)}")
+                        if response.generations and len(response.generations) > 0:
+                            first_gen = response.generations[0]
+                            logger.info(f"🔍 First generation: {len(first_gen)} items")
+                            if first_gen and len(first_gen) > 0:
+                                generated_text = first_gen[0].text.strip()
+                                logger.info(f"✅ {model_name} response generated successfully (length: {len(generated_text)})")
+                                logger.info(f"📝 Response preview: {generated_text[:200]}...")
+                                return generated_text
+                            else:
+                                logger.error("❌ First generation is empty")
+                        else:
+                            logger.error("❌ No generations in response")
+                    else:
+                        logger.error("❌ Invalid response structure")
+                    
+                    # If we get here, there was an issue with the response structure
+                    logger.error("❌ Response structure issue, falling back")
+                    return await self._generate_fallback_response(query, context or {})
+                    
+                except Exception as e:
+                    logger.error(f"❌ {model_name} generation failed: {e}")
+                    logger.error(f"🔧 Error type: {type(e).__name__}")
+                    import traceback
+                    logger.error(f"🔍 Full traceback: {traceback.format_exc()}")
+                    return await self._generate_fallback_response(query, context or {})
             
-            # If we get here, fallback to default response
-            return await self._generate_fallback_response(query, context)
-            
+            else:
+                logger.warning(f"⚠️  Unknown model type: {model_name}")
+                return await self._generate_fallback_response(query, context or {})
+                
         except Exception as e:
-            logger.error(f"LLM generation failed: {e}")
-            return await self._generate_fallback_response(query, context)
+            logger.error(f"❌ Response generation failed: {e}")
+            logger.error(f"🔧 Error type: {type(e).__name__}")
+            import traceback
+            logger.error(f"🔍 Full traceback: {traceback.format_exc()}")
+            return await self._generate_fallback_response(query, context or {})
     
     def _create_context_prompt(self, query: str, context: Optional[Dict[str, Any]] = None) -> str:
         """Create a context-aware prompt."""
@@ -267,23 +460,23 @@ Please provide a helpful and informative response:"""
         
         # Simple pattern matching for common queries
         if any(word in query_lower for word in ['hello', 'hi', 'greeting']):
-            return "Hello! I'm TAAA, your Treasury AI Assistant. How can I help you with treasury and liquidity management today?"
+            return "Hello! I'm TAAA, your Treasury AI Assistant. [FALLBACK MODE - LLM not available] How can I help you with treasury and liquidity management today?"
         
         elif any(word in query_lower for word in ['forecast', 'predict', 'cash flow']):
-            return "I can help you with cash flow forecasting. Our CFFA agent uses advanced ML models including LSTM and Transformers for accurate predictions. Would you like me to request the latest forecast?"
+            return "[FALLBACK MODE] I can help you with cash flow forecasting. Our CFFA agent uses advanced ML models. Would you like me to request the latest forecast?"
         
         elif any(word in query_lower for word in ['portfolio', 'optimization', 'allocation']):
-            return "For portfolio optimization, our LOA agent uses advanced techniques including mean-variance optimization, risk parity, and reinforcement learning. I can help coordinate optimization requests."
+            return "[FALLBACK MODE] I can help coordinate portfolio optimization requests with our LOA agent. What specific optimization would you like to perform?"
         
         elif any(word in query_lower for word in ['risk', 'var', 'volatility']):
-            return "Our RHA agent handles comprehensive risk management including VaR calculations, stress testing, and hedging strategies. What specific risk metrics would you like to know about?"
+            return "[FALLBACK MODE] I can help with risk management queries. Our RHA agent handles VaR calculations and stress testing. What specific risk metrics would you like to know about?"
         
         elif any(word in query_lower for word in ['status', 'health', 'system']):
             agent_status = context.get('agent_status', 'Unknown') if context else 'Unknown'
-            return f"System Status: {agent_status}. All agents are running and coordinating to provide comprehensive treasury management capabilities."
+            return f"[FALLBACK MODE] System Status: {agent_status}. All agents are running and coordinating to provide treasury management capabilities."
         
         elif any(word in query_lower for word in ['help', 'assist', 'guide']):
-            return """I can assist you with:
+            return """[FALLBACK MODE] I can assist you with:
 • Cash flow forecasting and predictions
 • Portfolio optimization and rebalancing
 • Risk assessment and management
@@ -294,7 +487,7 @@ Please provide a helpful and informative response:"""
 What would you like to know more about?"""
         
         else:
-            return "I understand you're asking about treasury and liquidity management. While I'm currently running in limited mode, I can still help coordinate with our specialized agents. Could you be more specific about what you need?"
+            return "[FALLBACK MODE - LLM not available] I understand you're asking about treasury and liquidity management. I can help coordinate with our specialized agents. Could you be more specific about what you need?"
 
 
 class TreasuryAssistantAgent(BaseAgent):
@@ -382,38 +575,109 @@ class TreasuryAssistantAgent(BaseAgent):
         """Initialize agent-specific components."""
         logger.info("Initializing Treasury AI Assistant Agent")
         
-        # Subscribe to system messages
-        self.message_bus.subscribe(MessageType.BROADCAST, self._handle_system_update)
-        self.message_bus.subscribe(MessageType.AGENT_HEARTBEAT, self._handle_agent_heartbeat)
-        
-        # Start background tasks
-        asyncio.create_task(self._conversation_cleanup_loop())
-        asyncio.create_task(self._system_state_update_loop())
-        
-        # Initialize NLP models
-        await self._initialize_nlp_models()
-        
-        logger.info("Treasury AI Assistant Agent initialized")
-    
-    async def _initialize_nlp_models(self):
-        """Initialize NLP models and components."""
         try:
-            # Load spaCy model
+            logger.info("📝 TAAA Step 1: Setting up message subscriptions...")
+            # Subscribe to system messages
+            self.message_bus.subscribe(MessageType.BROADCAST, self._handle_system_update)
+            self.message_bus.subscribe(MessageType.AGENT_HEARTBEAT, self._handle_agent_heartbeat)
+            logger.info("✅ TAAA Step 1: Message subscriptions set up")
+            
+            logger.info("📝 TAAA Step 2: Starting background tasks...")
+            # Start background tasks
+            asyncio.create_task(self._conversation_cleanup_loop())
+            asyncio.create_task(self._system_state_update_loop())
+            logger.info("✅ TAAA Step 2: Background tasks started")
+            
+            logger.info("📝 TAAA Step 3: Initializing NLP models (optional)...")
+            # Initialize NLP models - make this truly optional
             try:
-                import spacy
-                self.nlp = spacy.load("en_core_web_sm")
-                logger.info("spaCy model loaded successfully")
-            except (OSError, ImportError) as e:
-                logger.warning(f"Could not load spaCy model: {e}")
+                await self._initialize_nlp_models()
+                logger.info("✅ TAAA Step 3: NLP models initialized successfully")
+            except Exception as e:
+                logger.warning(f"⚠️ TAAA Step 3: NLP model initialization failed (continuing anyway): {e}")
+                # Set fallback values
                 self.nlp = None
             
+            logger.info("✅ Treasury AI Assistant Agent initialized successfully")
+            
         except Exception as e:
-            logger.error(f"NLP model initialization failed: {e}")
+            logger.error(f"❌ TAAA initialization failed: {e}")
+            logger.error(f"🔧 Error type: {type(e).__name__}")
+            import traceback
+            logger.error(f"🔍 Full traceback: {traceback.format_exc()}")
+            raise  # Re-raise to let the caller handle it
+    
+    async def _initialize_nlp_models(self):
+        """Initialize NLP models and components - all optional."""
+        logger.info("Initializing optional NLP models...")
+        
+        # Initialize spaCy model (optional)
+        if SPACY_AVAILABLE:
+            try:
+                logger.info("Attempting to load spaCy en_core_web_sm model...")
+                self.nlp = spacy.load("en_core_web_sm")
+                logger.info("✅ spaCy model loaded successfully")
+            except (OSError, ImportError) as e:
+                logger.warning(f"⚠️ Could not load spaCy model (continuing without it): {e}")
+                self.nlp = None
+            except Exception as e:
+                logger.warning(f"⚠️ Unexpected spaCy error (continuing without it): {e}")
+                self.nlp = None
+        else:
+            logger.warning("spaCy not available, NLP models will not be initialized.")
+        
+        # Initialize NLTK components (optional)
+        if NLTK_AVAILABLE:
+            try:
+                import nltk
+                logger.info("Setting up NLTK components...")
+                
+                # Try to download required NLTK data quietly
+                try:
+                    nltk.download('punkt', quiet=True)
+                    nltk.download('stopwords', quiet=True) 
+                    nltk.download('wordnet', quiet=True)
+                    nltk.download('vader_lexicon', quiet=True)
+                    logger.info("✅ NLTK data downloaded successfully")
+                except Exception as e:
+                    logger.warning(f"⚠️ NLTK data download failed (continuing anyway): {e}")
+                    
+            except ImportError as e:
+                logger.warning(f"⚠️ NLTK not available (continuing without it): {e}")
+            except Exception as e:
+                logger.warning(f"⚠️ Unexpected NLTK error (continuing without it): {e}")
+        else:
+            logger.warning("NLTK not available, text processing will be basic.")
+        
+        logger.info("NLP model initialization completed (with any available models)")
     
     async def _cleanup(self):
         """Cleanup agent-specific resources."""
         logger.info("Cleaning up Treasury AI Assistant Agent")
         self.active_conversations.clear()
+        
+        # Cleanup LLM models and their HTTP sessions
+        try:
+            if hasattr(self, 'llm_orchestrator') and self.llm_orchestrator:
+                if hasattr(self.llm_orchestrator, 'models'):
+                    for model_name, model in self.llm_orchestrator.models.items():
+                        # For LangChain models, try to close any HTTP sessions
+                        if hasattr(model, 'client') and hasattr(model.client, 'session'):
+                            try:
+                                await model.client.session.close()
+                            except:
+                                pass
+                        elif hasattr(model, '_client') and hasattr(model._client, 'session'):
+                            try:
+                                await model._client.session.close()
+                            except:
+                                pass
+                        logger.debug(f"Cleaned up {model_name} model")
+        except Exception as e:
+            logger.debug(f"Error cleaning up LLM models: {e}")
+        
+        # Give time for cleanup
+        await asyncio.sleep(0.1)
     
     async def _main_loop(self):
         """Main processing loop."""
@@ -448,7 +712,7 @@ class TreasuryAssistantAgent(BaseAgent):
         
         try:
             # Generate session ID if not provided
-            if not session_id:
+            if session_id is None:
                 session_id = f"{user_id}_{int(datetime.utcnow().timestamp())}"
             
             # Get or create conversation context
@@ -504,7 +768,7 @@ class TreasuryAssistantAgent(BaseAgent):
                 'error': str(e),
                 'intent': 'error',
                 'confidence': 0.0,
-                'session_id': session_id,
+                'session_id': session_id or "unknown",
                 'timestamp': datetime.utcnow().isoformat()
             }
     
@@ -747,11 +1011,15 @@ class TreasuryAssistantAgent(BaseAgent):
             await self._send_message(optimization_request)
             self.metrics['agent_requests_coordinated'] += 1
             
+            # Return data without preset response - let LLM generate natural language
             return {
                 'type': 'portfolio_optimization',
                 'status': 'requested',
                 'current_portfolio': self.system_state.get('portfolio_summary'),
-                'message': 'Optimization request sent to LOA agent'
+                'optimization_requested': True,
+                'loa_agent_contacted': True,
+                'risk_tolerance': self._extract_risk_tolerance(query, entities),
+                'constraints': self._extract_constraints(query, entities)
             }
             
         except Exception as e:
@@ -762,12 +1030,15 @@ class TreasuryAssistantAgent(BaseAgent):
                                entities: List[Dict]) -> Dict[str, Any]:
         """Handle risk management queries."""
         try:
+            # Return data without preset response - let LLM generate natural language
             return {
                 'type': 'risk_analysis',
                 'current_metrics': self.system_state.get('risk_metrics'),
                 'var_95': '2.5M USD',
                 'max_drawdown': '5.2%',
-                'stress_test_results': 'Available on request'
+                'stress_test_results': 'Available on request',
+                'rha_agent_available': True,
+                'risk_monitoring_active': True
             }
             
         except Exception as e:
@@ -777,16 +1048,20 @@ class TreasuryAssistantAgent(BaseAgent):
     async def _handle_status_query(self, query: str, context: ConversationContext, 
                                  entities: List[Dict]) -> Dict[str, Any]:
         """Handle system status queries."""
+        # Return data without preset response - let LLM generate natural language
         return {
             'type': 'system_status',
-            'agents': self.system_state['agent_status'],
+            'agents': self.system_state.get('agent_status', {}),
             'system_health': 'Operational',
-            'last_update': datetime.utcnow().isoformat()
+            'last_update': datetime.utcnow().isoformat(),
+            'active_agents': len(self.system_state.get('agent_status', {})),
+            'system_uptime': 'Running normally'
         }
     
     async def _handle_greeting(self, query: str, context: ConversationContext, 
                              entities: List[Dict]) -> Dict[str, Any]:
         """Handle greeting messages."""
+        # Return data without preset response - let LLM generate natural language
         return {
             'type': 'greeting',
             'capabilities': list(self.agent_capabilities.keys()),
@@ -796,31 +1071,39 @@ class TreasuryAssistantAgent(BaseAgent):
                 'Risk analysis',
                 'Market monitoring',
                 'Regulatory reporting'
-            ]
+            ],
+            'system_ready': True,
+            'user_context': context.user_id
         }
     
     async def _handle_help_query(self, query: str, context: ConversationContext, 
                                  entities: List[Dict]) -> Dict[str, Any]:
         """Handle help queries."""
+        # Return data without preset response - let LLM generate natural language
         return {
             'type': 'help',
-            'message': """I can assist you with:
-• Cash flow forecasting and predictions
-• Portfolio optimization and rebalancing
-• Risk assessment and management
-• Market analysis and monitoring
-• Regulatory reporting and compliance
-• System status and agent coordination
-
-What would you like to know more about?"""
+            'available_capabilities': [
+                'Cash flow forecasting and predictions',
+                'Portfolio optimization and rebalancing',
+                'Risk assessment and management',
+                'Market analysis and monitoring',
+                'Regulatory reporting and compliance',
+                'System status and agent coordination'
+            ],
+            'agents_available': list(self.agent_capabilities.keys()),
+            'system_operational': True
         }
     
     async def _handle_general_query(self, query: str, context: ConversationContext, 
                                   entities: List[Dict]) -> Dict[str, Any]:
         """Handle general queries that don't fit specific categories."""
+        # Return data without preset response - let LLM generate natural language
         return {
             'type': 'general',
-            'message': 'I can help with treasury and liquidity management. Please be more specific about what you need.'
+            'query_received': True,
+            'system_capabilities': list(self.agent_capabilities.keys()),
+            'context_available': True,
+            'can_assist': True
         }
     
     # Helper methods for entity extraction and processing
@@ -1121,7 +1404,7 @@ What would you like to know more about?"""
                 "nlp_status": {
                     "intent_classifier": "Ready",
                     "nlp_engine": "Online",
-                    "llm_fallback": "Ready" if hasattr(self, 'llm_model') else "Inactive"
+                    "llm_fallback": "Ready" if hasattr(self, 'llm_orchestrator') and self.llm_orchestrator.models else "Inactive"
                 }
             }
         except Exception as e:
@@ -1157,8 +1440,8 @@ What would you like to know more about?"""
                 "accuracy": round(accuracy, 1),
                 "active_sessions": active_sessions,
                 "total_queries": total_queries,
-                "nlp_engine": "Online",
-                "intent_classifier": "Ready",
+                "nlp_engine": "Online" if SPACY_AVAILABLE else "Offline",
+                "intent_classifier": "Ready" if self.intent_classifier else "Inactive",
                 "last_query": datetime.now().isoformat(),
                 "supported_intents": ["forecast", "portfolio", "risk", "market", "compliance", "conversation"]
             }
@@ -1178,7 +1461,7 @@ What would you like to know more about?"""
             metrics = self.get_metrics()
             
             return {
-                "nlp_engine": "Online",
+                "nlp_engine": "Online" if SPACY_AVAILABLE else "Offline",
                 "accuracy": round(metrics.get("accuracy", 94), 1),
                 "response_time": round(metrics.get("avg_response_time", 380), 0),
                 "sessions": metrics.get("active_sessions", 0)

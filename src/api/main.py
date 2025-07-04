@@ -7,18 +7,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import uvicorn
+import asyncio
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Dict, Any, Optional
 
 from ..config.settings import settings
-from ..config.logging import setup_logging
+from ..config.logging import setup_logging, get_logger
 from ..core.orchestrator import AgentOrchestrator
 from ..core.message_bus import MessageBus
 from .routes import router
 from .middleware import setup_middleware
 from .websocket import websocket_router, dashboard_websocket_endpoint
 from ..agents.taaa import TreasuryAssistantAgent
+
+logger = get_logger(__name__)
 
 # Global instances
 message_bus = MessageBus()
@@ -42,10 +45,28 @@ async def lifespan(app: FastAPI):
     setup_logging()
     await orchestrator.start()
     
+    # Start market data service
+    from ..services.market_data_service import market_data_service
+    await market_data_service.start()
+    
     yield
     
     # Shutdown
+    logger.info("Starting application shutdown...")
+    
+    # Stop market data service first
+    try:
+        await market_data_service.stop()
+    except Exception as e:
+        logger.error(f"Error stopping market data service: {e}")
+    
+    # Stop orchestrator
     await orchestrator.stop()
+    
+    # Give async tasks time to cleanup
+    await asyncio.sleep(1)
+    
+    logger.info("Application shutdown complete")
 
 
 def create_app() -> FastAPI:
@@ -138,27 +159,56 @@ app = create_app()
 async def startup_event():
     """Initialize services on startup."""
     global taaa_agent
-    # logger.info("🚀 Starting Agentic TLM API Server") # logger is not defined in this file
+    print("🚀 Starting Agentic TLM API Server - TAAA Initialization")
+    print("🔍 DEBUG: FastAPI startup event triggered")
     
-    # Initialize TAAA agent for natural language processing
-    try:
-        # Connect TAAA agent to the message bus so it can communicate with other agents
-        taaa_agent = TreasuryAssistantAgent(message_bus=message_bus)
+    # Wait for the main system's TAAA agent to be available
+    print("📝 Waiting for main system TAAA agent to be available...")
+    
+    max_attempts = 30  # Wait up to 30 seconds
+    for attempt in range(max_attempts):
+        try:
+            # Check if orchestrator has a TAAA agent
+            if 'taaa' in orchestrator.agents:
+                main_taaa = orchestrator.agents['taaa']
+                if main_taaa and main_taaa.agent_name == "Treasury AI Assistant Agent":
+                    taaa_agent = main_taaa
+                    print(f"✅ Found existing TAAA agent in orchestrator after {attempt + 1} attempts")
+                    print(f"🔧 DEBUG: Using main system TAAA agent: {type(taaa_agent)}")
+                    print(f"🔧 DEBUG: taaa_agent is None? {taaa_agent is None}")
+                    break
+            
+            # If not found, wait a bit and try again
+            if attempt < max_attempts - 1:
+                print(f"⏳ TAAA not ready yet, waiting... (attempt {attempt + 1}/{max_attempts})")
+                await asyncio.sleep(1)
+            else:
+                print("❌ Timeout waiting for main system TAAA agent")
+                taaa_agent = None
+                
+        except Exception as e:
+            print(f"⚠️ Error checking for TAAA agent: {e}")
+            if attempt < max_attempts - 1:
+                await asyncio.sleep(1)
+            else:
+                taaa_agent = None
+    
+    if taaa_agent:
+        print("✅ API successfully connected to main system TAAA agent")
+    else:
+        print("❌ Failed to connect to main system TAAA agent - will create fallback")
         
-        # Set orchestrator reference using setattr to avoid linter issues
-        setattr(taaa_agent, 'orchestrator', orchestrator)
-        
-        await taaa_agent._initialize()
-        
-        # Add the TAAA agent to the orchestrator
-        orchestrator.agents['taaa'] = taaa_agent
-        
-        print("✅ TAAA Natural Language Interface initialized and connected")
-        # logger.info("✅ TAAA Natural Language Interface initialized") # logger is not defined in this file
-    except Exception as e:
-        print(f"⚠️ TAAA initialization failed: {e}")
-        # logger.warning(f"⚠️ TAAA initialization failed: {e}") # logger is not defined in this file
-        taaa_agent = None
+        # Create a minimal fallback TAAA agent
+        try:
+            print("📝 Creating fallback TAAA agent...")
+            from src.core.message_bus import MessageBus
+            api_message_bus = MessageBus()
+            taaa_agent = TreasuryAssistantAgent(message_bus=api_message_bus)
+            await taaa_agent._initialize()
+            print("✅ Fallback TAAA agent created successfully")
+        except Exception as e:
+            print(f"❌ Fallback TAAA creation failed: {e}")
+            taaa_agent = None
 
 
 @app.get("/api/health")
@@ -197,109 +247,62 @@ async def chat_endpoint(request: ChatRequest):
                 "confidence": 0.0
             }
         
-        # Process with TAAA if available
-        if taaa_agent:
-            try:
-                print(f"DEBUG: Processing query with TAAA agent: '{query}'")
-                response_data = await taaa_agent.process_natural_language_query(
-                    query=query,
-                    user_id=user_id,
-                    session_id=session_id or "default"
-                )
-                print(f"DEBUG: TAAA response type: {response_data.get('intent', 'unknown')}")
-                print(f"DEBUG: TAAA response: {response_data.get('response', 'no response')[:100]}...")
-                return response_data
-            except Exception as e:
-                print(f"DEBUG: TAAA processing error: {e}")
-                # Fall through to fallback response
-                pass
-        else:
-            print("DEBUG: TAAA agent not available, using fallback")
-        
-        # Fallback response when TAAA is not available
-        fallback_responses = {
-            "forecast": {
-                "response": "📈 I can help with cash flow forecasting using our advanced LSTM and Transformer models. Our ensemble approach combines multiple AI models for highly accurate 30-day predictions with 87% confidence. The system processes 13+ engineered features including market data, seasonal patterns, and economic indicators.",
-                "intent": "forecast_query",
-                "confidence": 0.9,
-                "data": {
-                    "type": "forecast",
-                    "models": ["LSTM", "Transformer", "Random Forest"],
-                    "accuracy": "87%",
-                    "horizon": "30 days"
-                }
-            },
-            "portfolio": {
-                "response": "🎯 Our portfolio optimization uses advanced reinforcement learning with PPO agents, combined with traditional methods like Mean-Variance and Risk Parity optimization. The system continuously learns and adapts to market conditions, achieving a Sharpe ratio of 1.52 through intelligent coordination between agents.",
-                "intent": "portfolio_query", 
-                "confidence": 0.9,
-                "data": {
-                    "type": "portfolio_optimization",
-                    "algorithms": ["PPO", "Mean-Variance", "Risk Parity", "Black-Litterman"],
-                    "sharpe_ratio": 1.52,
-                    "rebalancing": "Real-time"
-                }
-            },
-            "risk": {
-                "response": "⚠️ Our risk management system provides comprehensive analysis including VaR calculations, stress testing, and real-time monitoring. Current portfolio VaR is $2.5M with sophisticated hedging strategies and dynamic risk adjustment based on market conditions.",
-                "intent": "risk_query",
-                "confidence": 0.9,
-                "data": {
-                    "type": "risk_analysis",
-                    "var_95": "$2.5M",
-                    "max_drawdown": "5.2%",
-                    "monitoring": "Real-time"
-                }
-            },
-            "status": {
-                "response": "🔍 System Status: All 6 agents are operational and coordinating intelligently. CFFA (Forecasting), LOA (Optimization), TAAA (Interface), MMEA (Market Monitoring), RHA (Risk & Hedging), and RRA (Regulatory Reporting) are all active with 94% AI accuracy and 380ms average response time.",
-                "intent": "status",
-                "confidence": 1.0,
-                "data": {
-                    "type": "system_status",
-                    "agents_online": "6/6",
-                    "ai_accuracy": "94%",
-                    "response_time": "380ms",
-                    "coordination": "Active"
-                }
-            }
-        }
-        
-        # Determine response based on query content
-        query_lower = query.lower()
-        
-        if any(word in query_lower for word in ['forecast', 'predict', 'cash flow', 'future']):
-            return fallback_responses["forecast"]
-        elif any(word in query_lower for word in ['portfolio', 'optimization', 'allocation', 'rebalance']):
-            return fallback_responses["portfolio"]
-        elif any(word in query_lower for word in ['risk', 'var', 'volatility', 'hedge']):
-            return fallback_responses["risk"]
-        elif any(word in query_lower for word in ['status', 'health', 'system', 'agents']):
-            return fallback_responses["status"]
-        else:
+        # Process with TAAA - this is now required, no fallbacks
+        if not taaa_agent:
             return {
-                "response": f"🤖 I understand you're asking about '{query}'. I'm an advanced AI assistant specializing in treasury and liquidity management. I can help with cash flow forecasting using LSTM/Transformers, portfolio optimization with reinforcement learning, risk analysis, and system coordination. Could you be more specific about what you'd like to know?",
-                "intent": "general",
-                "confidence": 0.7,
-                "data": {
-                    "type": "general",
-                    "capabilities": [
-                        "Cash flow forecasting with deep learning",
-                        "Portfolio optimization with RL",
-                        "Risk management and analysis",
-                        "Market monitoring and sentiment",
-                        "Agent coordination and status"
-                    ]
+                "response": "TAAA agent is not initialized. Please check the system logs for initialization errors.",
+                "error": "TAAA agent unavailable",
+                "intent": "error",
+                "confidence": 0.0,
+                "debug": "TAAA agent not available during startup"
+            }
+        
+        try:
+            print(f"DEBUG: Processing query with TAAA agent: '{query}'")
+            response_data = await taaa_agent.process_natural_language_query(
+                query=query,
+                user_id=user_id,
+                session_id=session_id or "default"
+            )
+            print(f"DEBUG: TAAA response type: {response_data.get('intent', 'unknown')}")
+            print(f"DEBUG: TAAA response: {response_data.get('response', 'no response')[:100]}...")
+            
+            # If TAAA returns a response, use it
+            if response_data and response_data.get('response'):
+                return response_data
+            else:
+                return {
+                    "response": "TAAA agent processed the query but returned no response. This may indicate an OpenAI integration issue.",
+                    "error": "Empty TAAA response",
+                    "intent": "error",
+                    "confidence": 0.0,
+                    "debug": f"TAAA returned: {response_data}"
                 }
+                
+        except Exception as e:
+            print(f"DEBUG: TAAA processing error: {e}")
+            import traceback
+            print(f"DEBUG: Full traceback: {traceback.format_exc()}")
+            
+            return {
+                "response": f"TAAA agent encountered an error: {str(e)}. This may indicate an OpenAI API issue or configuration problem.",
+                "error": str(e),
+                "intent": "error", 
+                "confidence": 0.0,
+                "debug": f"TAAA error: {traceback.format_exc()}"
             }
         
     except Exception as e:
-        # logger.error(f"Chat endpoint error: {e}") # logger is not defined in this file
+        print(f"DEBUG: Chat endpoint error: {e}")
+        import traceback
+        print(f"DEBUG: Full traceback: {traceback.format_exc()}")
+        
         return {
-            "response": "I apologize, but I encountered an error processing your request. Please try again or contact support if the issue persists.",
+            "response": f"Chat endpoint encountered an error: {str(e)}. Please check the system configuration.",
             "error": str(e),
             "intent": "error",
-            "confidence": 0.0
+            "confidence": 0.0,
+            "debug": f"Endpoint error: {traceback.format_exc()}"
         }
 
 

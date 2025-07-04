@@ -61,7 +61,7 @@ class LoggingConfig:
     def configure_logging(self) -> None:
         """Configure logging for the application."""
         # Configure structlog if available
-        if STRUCTLOG_AVAILABLE:
+        if STRUCTLOG_AVAILABLE and structlog is not None:
             structlog.configure(
                 processors=[
                     structlog.stdlib.filter_by_level,
@@ -208,10 +208,15 @@ class LoggingConfig:
     def _add_custom_handlers(self) -> None:
         """Add custom logging handlers."""
         # Add Sentry handler if configured
-        if settings.sentry_dsn:
+        if settings.sentry_dsn and settings.sentry_dsn not in ["", "your_sentry_dsn_here", None]:
             try:
                 import sentry_sdk
                 from sentry_sdk.integrations.logging import LoggingIntegration
+                
+                # Validate DSN format
+                if not settings.sentry_dsn.startswith(('http://', 'https://')):
+                    logging.warning(f"Invalid Sentry DSN format: {settings.sentry_dsn[:20]}... - skipping Sentry logging")
+                    return
                 
                 sentry_logging = LoggingIntegration(
                     level=logging.INFO,        # Capture info and above as breadcrumbs
@@ -226,12 +231,18 @@ class LoggingConfig:
                     release=settings.app_version,
                 )
                 
+                logging.info("✅ Sentry logging initialized successfully")
+                
             except ImportError:
                 logging.warning("Sentry SDK not installed, skipping Sentry logging")
+            except Exception as e:
+                logging.warning(f"Failed to initialize Sentry logging: {e}")
+        else:
+            logging.debug("Sentry DSN not configured, skipping Sentry logging")
     
     def get_logger(self, name: str):
         """Get a structured logger instance."""
-        if STRUCTLOG_AVAILABLE:
+        if STRUCTLOG_AVAILABLE and structlog is not None:
             return structlog.get_logger(name)
         else:
             return SimpleLoggerWrapper(logging.getLogger(name))
@@ -240,9 +251,12 @@ class LoggingConfig:
         """Get audit logger for compliance logging."""
         return logging.getLogger("src.core.audit")
     
-    def get_agent_logger(self, agent_name: str) -> structlog.BoundLogger:
+    def get_agent_logger(self, agent_name: str):
         """Get logger for specific agent."""
-        return structlog.get_logger(f"src.agents.{agent_name}")
+        if STRUCTLOG_AVAILABLE and structlog is not None:
+            return structlog.get_logger(f"src.agents.{agent_name}")
+        else:
+            return SimpleLoggerWrapper(logging.getLogger(f"src.agents.{agent_name}"))
 
 
 # =============================================================================

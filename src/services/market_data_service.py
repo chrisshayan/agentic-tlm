@@ -84,7 +84,14 @@ class MarketDataService:
         self.is_running = False
         
         if self.session:
-            await self.session.close()
+            try:
+                await self.session.close()
+                # Give time for the session to fully close
+                await asyncio.sleep(0.1)
+            except Exception as e:
+                logger.warning(f"Error closing aiohttp session: {e}")
+            finally:
+                self.session = None
             
         logger.info("Market data service stopped")
     
