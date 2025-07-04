@@ -100,7 +100,7 @@ class IntentClassifier:
         self.intent_patterns = {
             'forecast': ['forecast', 'predict', 'prediction', 'future', 'cash flow', 'liquidity', 'projection'],
             'portfolio': ['portfolio', 'allocation', 'optimize', 'rebalance', 'investment', 'asset'],
-            'risk': ['risk', 'var', 'value at risk', 'volatility', 'hedge', 'exposure'],
+            'risk': ['risk', 'var', 'value at risk', 'volatility', 'hedge', 'exposure', 'stress', 'test', 'scenario', 'drawdown', 'shortfall'],
             'status': ['status', 'health', 'system', 'agent', 'monitoring', 'performance'],
             'greeting': ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'greetings'],
             'help': ['help', 'assist', 'guide', 'support', 'how', 'what can you do'],
