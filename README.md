@@ -1,4 +1,4 @@
-# 🏦 Agentic Treasury and Liquidity Management (TLM) System
+# Agentic Treasury and Liquidity Management (TLM) System
 
 ## Advanced AI Implementation
 
@@ -6,54 +6,17 @@ A sophisticated, multi-agent AI ecosystem designed to revolutionize treasury ope
 
 [![Watch the Demo](https://img.youtube.com/vi/TdPKkhhdWJk/hqdefault.jpg)](https://youtu.be/TdPKkhhdWJk)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [🏦 Agentic Treasury and Liquidity Management (TLM) System](#-agentic-treasury-and-liquidity-management-tlm-system)
+- [Agentic Treasury and Liquidity Management (TLM) System](#agentic-treasury-and-liquidity-management-tlm-system)
   - [Advanced AI Implementation](#advanced-ai-implementation)
-  - [📋 Table of Contents](#-table-of-contents)
-  - [🚀 Key Features](#-key-features)
-    - [1. Natural Language Interface with LLM Integration](#1-natural-language-interface-with-llm-integration)
-    - [2. LSTM/Transformer Models for Sequence Prediction](#2-lstmtransformer-models-for-sequence-prediction)
-    - [3. Multi-agent Reinforcement Learning](#3-multi-agent-reinforcement-learning)
-    - [4. Advanced Portfolio Optimization](#4-advanced-portfolio-optimization)
-    - [5. Real-time Market Monitoring & Execution (MMEA)](#5-real-time-market-monitoring--execution-mmea)
-    - [6. Risk Management & Hedging (RHA)](#6-risk-management--hedging-rha---the-protector)
-  - [🏗️ System Architecture](#️-system-architecture)
-  - [⚡ Quick Start](#-quick-start)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-    - [Configuration](#configuration)
-    - [Start the System](#start-the-system)
-    - [Access the Enhanced Interface](#access-the-enhanced-interface)
-  - [🕸️ Agent Mesh Architecture](#️-agent-mesh-architecture)
-    - [Overview](#overview)
-    - [Agent Orchestrator (Core)](#agent-orchestrator-core)
-    - [Agent Communication Patterns](#agent-communication-patterns)
-  - [🤝 Agent Integration & Coordination](#-agent-integration--coordination)
-    - [Multi-Agent Communication](#multi-agent-communication)
-    - [Real-time Data Flow](#real-time-data-flow)
-    - [Adaptive Behavior](#adaptive-behavior)
-  - [💬 Natural Language Interface](#-natural-language-interface)
-    - [Interactive Chat Examples](#interactive-chat-examples)
-    - [API Integration](#api-integration)
-  - [📚 Usage Examples](#-usage-examples)
-    - [1. Natural Language Queries](#1-natural-language-queries)
-    - [2. Advanced Forecasting](#2-advanced-forecasting)
-    - [3. RL-Based Optimization](#3-rl-based-optimization)
-    - [4. Market Monitoring & Execution (MMEA)](#4-market-monitoring--execution-mmea)
-    - [5. Risk Management & Hedging (RHA)](#5-risk-management--hedging-rha)
-    - [6. Agent Integration Examples](#6-agent-integration-examples)
-  - [📊 Enhanced Web Dashboard](#-enhanced-web-dashboard)
-    - [New Market Insights & Risk Management Sections](#new-market-insights--risk-management-sections)
-    - [Agent Status Cards](#agent-status-cards)
-    - [Live Data Updates](#live-data-updates)
-    - [Features](#features)
-    - [Interactive Elements](#interactive-elements)
-  - [🤖 AI Agent Specifications](#-ai-agent-specifications)
-    - [CFFA (Cash Flow Forecasting Agent)](#cffa-cash-flow-forecasting-agent)
-    - [LOA (Liquidity Optimization Agent)](#loa-liquidity-optimization-agent)
-    - [TAAA (Treasury AI Assistant Agent)](#taaa-treasury-ai-assistant-agent)
-  - [🧠 Machine Learning Techniques & Algorithms](#-machine-learning-techniques--algorithms)
+  - [Table of Contents](#table-of-contents)
+  - [Quick Start](#quick-start)
+  - [Agent Mesh Architecture](#agent-mesh-architecture)
+  - [Agent Integration & Coordination](#agent-integration--coordination)
+  - [Advance Usage Examples](#advance-usage-examples)
+  - [AI Agent Specifications](#ai-agent-specifications)
+  - [Machine Learning Techniques & Algorithms](#machine-learning-techniques--algorithms)
     - [Overview](#overview-1)
     - [Deep Learning Models (CFFA)](#deep-learning-models-cffa)
     - [Reinforcement Learning (LOA)](#reinforcement-learning-loa)
@@ -62,157 +25,7 @@ A sophisticated, multi-agent AI ecosystem designed to revolutionize treasury ope
     - [Natural Language Processing (TAAA)](#natural-language-processing-taaa)
     - [Market Analysis (MMEA)](#market-analysis-mmea)
     - [Cross-Agent Learning](#cross-agent-learning)
-  - [⚙️ Configuration](#️-configuration)
-    - [Environment Variables](#environment-variables)
-    - [Model Configuration](#model-configuration)
-  - [🔧 Troubleshooting](#-troubleshooting)
-    - [Common Issues](#common-issues)
-    - [Performance Optimization](#performance-optimization)
-  - [📈 Performance Metrics](#-performance-metrics)
-    - [System Performance](#system-performance)
-    - [AI Model Performance](#ai-model-performance)
-    - [Real-time Metrics](#real-time-metrics)
-  - [🔌 API Reference](#-api-reference)
-    - [Natural Language API](#natural-language-api)
-    - [Health Check API](#health-check-api)
-    - [WebSocket Real-time Updates](#websocket-real-time-updates)
-  - [🔒 Security & Compliance](#-security--compliance)
-    - [Security Features](#security-features)
-    - [Compliance](#compliance)
-  - [🚀 Deployment](#-deployment)
-    - [Docker Deployment](#docker-deployment)
-  - [📊 Monitoring & Analytics](#-monitoring--analytics)
-    - [Enhanced Dashboard Metrics](#enhanced-dashboard-metrics)
-    - [Alerting](#alerting)
-  - [💻 Development](#-development)
-    - [Development Setup](#development-setup)
-
-## 🚀 Key Features
-
-### 1. **Natural Language Interface** with LLM Integration
-- **Interactive Chat Dashboard** with real-time AI responses
-- **Multi-LLM Support** (OpenAI GPT-4, Anthropic Claude)
-- **Intent Classification** with 94% accuracy
-- **Entity Extraction** and sentiment analysis
-- **Conversational Memory** and context management
-- **Intelligent Agent Coordination** through natural language
-
-### 2. **LSTM/Transformer Models** for Sequence Prediction
-- **Enhanced CFFA Agent** with deep learning capabilities
-- **LSTM Networks** with attention mechanisms for time series forecasting
-- **Transformer Models** for advanced sequence prediction
-- **Ensemble Forecasting** combining Random Forest, LSTM, and Transformer models
-- **Real-time Model Training** with automatic retraining loops
-- **GPU/CPU Optimization** for efficient deep learning
-
-### 3. **Multi-agent Reinforcement Learning**
-- **Advanced LOA Agent** with RL-based optimization
-- **Custom Gym Environment** for liquidity optimization
-- **PPO (Proximal Policy Optimization)** for portfolio management
-- **Multi-agent Coordination** with cooperation scoring
-- **Dynamic Strategy Learning** through continuous RL training
-- **Risk-adjusted Reward Functions** for intelligent decision making
-
-### 4. **Advanced Portfolio Optimization**
-- **Multiple Optimization Algorithms**:
-  - Mean-Variance Optimization (CVXPY)
-  - Risk Parity Optimization
-  - Black-Litterman Model
-- **Ensemble Optimization** combining multiple methods
-- **Real-time Rebalancing** with transaction cost optimization
-- **Advanced Risk Metrics** (VaR, Sharpe Ratio, Calmar Ratio)
-
-### 5. **Real-time Market Monitoring & Execution (MMEA)**
-- **Comprehensive Market Monitoring** across 15+ financial instruments
-- **Advanced Trading Signal Generation** with machine learning
-- **Real-time Risk Assessment** and volatility monitoring
-- **Market Regime Detection** (Bull, Bear, Sideways)
-- **Automated Alert System** for market anomalies
-- **Portfolio Impact Analysis** with liquidity assessment
-- **Integration with CFFA and LOA** for coordinated decision making
-
-### 6. **Risk Management & Hedging (RHA) - "The Protector"**
-- **Advanced Risk Assessment**:
-  - Value-at-Risk (VaR) calculations using Historical, Parametric, and Monte Carlo methods
-  - Concentration risk analysis with Herfindahl-Hirschman Index
-  - Correlation risk monitoring across asset classes
-  - Liquidity risk assessment and stress testing
-- **Comprehensive Stress Testing**:
-  - Market crash scenarios (30% equity shock, 10% bond shock)
-  - Interest rate shock modeling (200 bps rate changes)
-  - Liquidity crisis simulations
-  - Currency crisis stress tests
-  - Credit crisis scenarios with spread widening
-- **Dynamic Hedging Strategies**:
-  - Equity hedging with options and futures (SPY PUT, TLT SHORT)
-  - Interest rate hedging for duration risk
-  - Currency hedging with FX forwards
-  - Real-time hedge effectiveness monitoring
-- **Intelligent Risk Alerts**:
-  - Automated threshold monitoring for all risk metrics
-  - Portfolio concentration alerts above 25% threshold
-  - VaR breach notifications with severity levels
-  - Correlation spike warnings during market stress
-- **Integration with Portfolio Management**:
-  - Real-time risk feed to LOA for risk-adjusted optimization
-  - Market volatility alerts to CFFA for forecast adjustment
-  - Hedge recommendations based on current portfolio composition
-
-## System Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Enhanced TLM System - Integrated Agents      │
-├─────────────────────────────────────────────────────────────────┤
-│  🤖 TAAA - Natural Language Interface                          │
-│  ├── Multi-LLM Integration (GPT-4, Claude)                     │
-│  ├── Intent Classification & Entity Extraction                  │
-│  ├── Conversational Memory & Context                           │
-│  └── Intelligent Agent Coordination                            │
-├─────────────────────────────────────────────────────────────────┤
-│  🧠 CFFA - Advanced ML Forecasting                             │
-│  ├── LSTM Networks with Attention                              │
-│  ├── Transformer Models                                        │
-│  ├── Ensemble Forecasting                                      │
-│  ├── Real-time Model Training                                  │
-│  └── 🔗 MMEA Market Data Integration                           │
-├─────────────────────────────────────────────────────────────────┤
-│  🎯 LOA - RL-Powered Optimization                              │
-│  ├── Multi-agent Reinforcement Learning                        │
-│  ├── Advanced Portfolio Optimization                           │
-│  ├── Dynamic Coordination                                      │
-│  ├── Risk-adjusted Strategy Learning                           │
-│  └── 🔗 MMEA Trading Signals & Risk Assessment                 │
-├─────────────────────────────────────────────────────────────────┤
-│  📊 MMEA - Market Monitoring & Execution                       │
-│  ├── 15+ Financial Instruments Monitoring                      │
-│  ├── ML-based Trading Signal Generation                        │
-│  ├── Real-time Risk Assessment & Volatility Monitoring         │
-│  ├── Market Regime Detection (Bull/Bear/Sideways)              │
-│  ├── Automated Alert System for Market Anomalies              │
-│  ├── Portfolio Impact Analysis & Liquidity Assessment          │
-│  └── 🔗 Coordinated Decision Making with CFFA & LOA           │
-├─────────────────────────────────────────────────────────────────┤
-│  🛡️ RHA - Risk Management & Hedging "The Protector"           │
-│  ├── Advanced VaR Calculations (Historical/Parametric/MC)      │
-│  ├── Comprehensive Stress Testing (5 Major Scenarios)          │
-│  ├── Dynamic Hedging Strategies (Equity/Rate/FX)               │
-│  ├── Real-time Risk Monitoring & Alerts                        │
-│  ├── Portfolio Concentration & Correlation Analysis            │
-│  └── 🔗 Risk Feed Integration with LOA & CFFA                  │
-├─────────────────────────────────────────────────────────────────┤
-│  📈 Enhanced Web Dashboard                                     │
-│  ├── Interactive Chat Interface                                │
-│  ├── Real-time AI Model Visualization                          │
-│  ├── Live Performance Metrics                                  │
-│  ├── Market Insights & Trading Signals                         │
-│  ├── Risk Management & Hedging Dashboard                       │
-│  └── Developer Integration Guide                               │
-├─────────────────────────────────────────────────────────────────┤
-│  RRA - Regulatory Reporting                                    │
-└─────────────────────────────────────────────────────────────────┘
-```
-
+  
 ## Quick Start
 
 ### Prerequisites
@@ -274,21 +87,21 @@ The TLM system operates as a sophisticated agent mesh where six specialized AI a
 ```mermaid
 graph TB
     subgraph "Agent Mesh Architecture"
-        O[Agent Orchestrator<br/>🎯 Message Bus<br/>📡 Security Manager<br/>🔍 Monitoring Manager]
+        O[Agent Orchestrator<br/>Message Bus<br/>Security Manager<br/>Monitoring Manager]
         
         subgraph "AI Agents"
-            CFFA[🔮 CFFA<br/>Cash Flow Forecasting<br/>LSTM, Transformer, RF<br/>Deep Learning]
-            LOA[🎯 LOA<br/>Liquidity Optimization<br/>PPO, RL Environment<br/>Portfolio Optimization]
-            MMEA[📊 MMEA<br/>Market Monitoring<br/>Signal Generation<br/>Risk Assessment]
-            RHA[🛡️ RHA<br/>Risk & Hedging<br/>VaR, Stress Testing<br/>Monte Carlo]
-            RRA[📋 RRA<br/>Regulatory Reporting<br/>Compliance Engine<br/>Audit Support]
-            TAAA[💬 TAAA<br/>AI Assistant<br/>NLP, Intent Classification<br/>LLM Integration]
+            CFFA[CFFA<br/>Cash Flow Forecasting<br/>LSTM, Transformer, RF<br/>Deep Learning]
+            LOA[LOA<br/>Liquidity Optimization<br/>PPO, RL Environment<br/>Portfolio Optimization]
+            MMEA[MMEA<br/>Market Monitoring<br/>Signal Generation<br/>Risk Assessment]
+            RHA[RHA<br/>Risk & Hedging<br/>VaR, Stress Testing<br/>Monte Carlo]
+            RRA[RRA<br/>Regulatory Reporting<br/>Compliance Engine<br/>Audit Support]
+            TAAA[TAAA<br/>AI Assistant<br/>NLP, Intent Classification<br/>LLM Integration]
         end
         
         subgraph "Data Flow"
             DB[(Historical Data<br/>Market Data<br/>Portfolio Data)]
-            API[🌐 FastAPI Server<br/>WebSocket<br/>REST Endpoints]
-            UI[📱 Web Dashboard<br/>Real-time Charts<br/>Chat Interface]
+            API[FastAPI Server<br/>WebSocket<br/>REST Endpoints]
+            UI[Web Dashboard<br/>Real-time Charts<br/>Chat Interface]
         end
     end
     
@@ -419,57 +232,7 @@ Forecast Updates ← Stress Tests ← Hedge Recommendations ← Dashboard
 - **Liquidity Constraints**: MMEA liquidity alerts modify LOA's asset allocation constraints
 - **Emergency Scenarios**: Coordinated response across all agents for crisis management
 
-## Natural Language Interface
-
-### Interactive Chat Examples
-```
-🔥 Try these queries in the web dashboard:
-
-📈 "What's the 30-day cash flow forecast?"
-🎯 "Optimize my portfolio with moderate risk tolerance"
-⚠️ "What are the current risk metrics and VaR?"
-🔍 "Show me the system status and agent health"
-💡 "Generate a stress test scenario for market volatility"
-```
-
-### API Integration
-```bash
-# Natural Language Query via API
-curl -X POST "http://localhost:8000/api/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "What is the cash flow forecast for next month?"}'
-
-# Response includes:
-{
-  "response": "📈 Our advanced LSTM and Transformer models predict...",
-  "intent": "forecast_query",
-  "confidence": 0.94,
-  "data": {...}
-}
-
-# MMEA Market Data API
-curl -X GET "http://localhost:8000/api/v1/dashboard/market-data"
-
-# MMEA Trading Signals API
-curl -X GET "http://localhost:8000/api/v1/dashboard/trading-signals"
-
-# RHA Risk Assessment API
-curl -X GET "http://localhost:8000/api/v1/dashboard/risk-assessment"
-
-# RHA Hedge Recommendations API
-curl -X GET "http://localhost:8000/api/v1/dashboard/hedge-recommendations"
-
-# RHA Stress Test Results API
-curl -X GET "http://localhost:8000/api/v1/dashboard/stress-tests"
-
-# RHA VaR Analysis API
-curl -X GET "http://localhost:8000/api/v1/dashboard/var-analysis"
-
-# Agent Status with MMEA & RHA Integration
-curl -X GET "http://localhost:8000/api/v1/dashboard/agent-status"
-```
-
-## Usage Examples
+## Advance Usage Examples
 
 ### 1. Natural Language Queries
 ```python
@@ -559,58 +322,6 @@ await mmea.send_market_alert("HIGH_VOLATILITY", volatility_data)
 await rha.send_risk_alert("VAR_BREACH", risk_data)
 ```
 
-## Enhanced Web Dashboard
-
-### New Market Insights & Risk Management Sections
-The dashboard now features comprehensive insights from MMEA and RHA:
-
-**Market Insights (MMEA):**
-- **Market Overview**: Real-time market regime, volatility, and coverage statistics
-- **Active Trading Signals**: Live buy/sell recommendations with strength indicators
-- **Risk Alerts**: Current risk levels and portfolio impact warnings
-- **Market Monitoring**: 15+ financial instruments tracked in real-time
-
-**Risk Management & Hedging (RHA):**
-- **Risk Metrics**: Real-time VaR, concentration risk, correlation analysis
-- **Active Hedges**: Current hedge positions and effectiveness monitoring
-- **Hedge Recommendations**: AI-generated hedging strategies with priority levels
-- **Stress Test Results**: Impact analysis for 5 major crisis scenarios
-- **Risk Alerts**: Real-time alerts for portfolio risk limit breaches
-
-### Agent Status Cards
-Updated agent cards show real-time integration status:
-
-- **CFFA**: Model accuracy enhanced by MMEA market data and RHA risk scenarios
-- **LOA**: Portfolio optimization guided by MMEA trading signals and RHA risk metrics
-- **RHA**: Real-time risk monitoring with VaR models, stress testing, and hedge management
-- **MMEA**: Market regime detection and signal generation
-- **TAAA**: Coordinated responses across all agents including risk assessments
-
-### Live Data Updates
-- Market data refreshes every 45 seconds
-- Trading signals update every minute
-- Risk metrics update every minute
-- Hedge recommendations update every 3 minutes
-- Stress test results update every 5 minutes
-- Risk assessments update in real-time
-- Agent coordination status shown live
-
-## Enhanced Web Dashboard
-
-### Features
-- **Live Chat Interface**: Direct conversation with AI assistant
-- **Real-time Visualizations**: Multi-model forecasting charts
-- **Model Performance**: Live accuracy, Sharpe ratio, response times
-- **Portfolio Optimization**: Real-time RL optimization visualization
-- **System Health**: Agent status and coordination indicators
-- **Developer Tools**: API examples and integration guides
-
-### Interactive Elements
-- **Example Query Buttons**: Pre-built queries for common tasks
-- **Live Model Status**: Real-time training and performance indicators
-- **Connection Testing**: Built-in API health checks
-- **WebSocket Updates**: Real-time data streaming
-
 ## AI Agent Specifications
 
 ### CFFA (Cash Flow Forecasting Agent)
@@ -642,45 +353,45 @@ The TLM system employs a comprehensive suite of machine learning techniques acro
 ```mermaid
 graph TB
     subgraph "Machine Learning Techniques by Agent"
-        subgraph "🔮 CFFA - Forecasting Models"
-            LSTM[🧠 LSTM Networks<br/>Sequence Length: 30 days<br/>Hidden Size: 128<br/>Layers: 2<br/>Dropout: 0.2]
-            TRANS[🤖 Transformer Models<br/>d_model: 128<br/>Attention Heads: 8<br/>Encoder Layers: 4<br/>Dropout: 0.1]
-            RF[🌳 Random Forest<br/>Estimators: 100<br/>Feature Engineering: 13+<br/>R²: 0.87+<br/>Cross-validation]
-            ENS[🎯 Ensemble Method<br/>Weighted Averaging<br/>RF: 30%, LSTM: 40%, Trans: 30%<br/>Confidence Intervals<br/>Scenario Analysis]
+        subgraph "CFFA - Forecasting Models"
+            LSTM[LSTM Networks<br/>Sequence Length: 30 days<br/>Hidden Size: 128<br/>Layers: 2<br/>Dropout: 0.2]
+            TRANS[Transformer Models<br/>d_model: 128<br/>Attention Heads: 8<br/>Encoder Layers: 4<br/>Dropout: 0.1]
+            RF[Random Forest<br/>Estimators: 100<br/>Feature Engineering: 13+<br/>R²: 0.87+<br/>Cross-validation]
+            ENS[Ensemble Method<br/>Weighted Averaging<br/>RF: 30%, LSTM: 40%, Trans: 30%<br/>Confidence Intervals<br/>Scenario Analysis]
         end
         
-        subgraph "🎯 LOA - Optimization Algorithms"
-            PPO[🎮 PPO Agent<br/>Policy Gradient<br/>Learning Rate: 0.0003<br/>Batch Size: 64<br/>GAE: 0.95]
-            MVO[📊 Mean-Variance Optimization<br/>Markowitz Portfolio Theory<br/>Covariance Matrix<br/>Risk-Return Frontier<br/>CVXPY Solver]
-            RP[⚖️ Risk Parity<br/>Equal Risk Contribution<br/>Volatility Weighting<br/>Diversification Focus<br/>Rebalancing Rules]
-            BL[🎯 Black-Litterman<br/>Bayesian Approach<br/>Prior Market Views<br/>Uncertainty Modeling<br/>Expected Returns]
+        subgraph "LOA - Optimization Algorithms"
+            PPO[PPO Agent<br/>Policy Gradient<br/>Learning Rate: 0.0003<br/>Batch Size: 64<br/>GAE: 0.95]
+            MVO[Mean-Variance Optimization<br/>Markowitz Portfolio Theory<br/>Covariance Matrix<br/>Risk-Return Frontier<br/>CVXPY Solver]
+            RP[Risk Parity<br/>Equal Risk Contribution<br/>Volatility Weighting<br/>Diversification Focus<br/>Rebalancing Rules]
+            BL[Black-Litterman<br/>Bayesian Approach<br/>Prior Market Views<br/>Uncertainty Modeling<br/>Expected Returns]
         end
         
-        subgraph "📊 MMEA - Market Analysis"
-            TS[📈 Time Series Analysis<br/>Trend Detection<br/>Momentum Indicators<br/>Moving Averages<br/>Volatility Measures]
-            SIGNAL[🔍 Signal Generation<br/>Technical Indicators<br/>Price Pattern Recognition<br/>Volume Analysis<br/>Confidence Scoring]
-            REGIME[🌊 Regime Detection<br/>Market State Classification<br/>Bull/Bear/Sideways<br/>Volatility Clustering<br/>Transition Modeling]
-            SENTIMENT[💭 Sentiment Analysis<br/>News Processing<br/>Market Mood Scoring<br/>Social Media Analysis<br/>Economic Indicators]
+        subgraph "MMEA - Market Analysis"
+            TS[Time Series Analysis<br/>Trend Detection<br/>Momentum Indicators<br/>Moving Averages<br/>Volatility Measures]
+            SIGNAL[Signal Generation<br/>Technical Indicators<br/>Price Pattern Recognition<br/>Volume Analysis<br/>Confidence Scoring]
+            REGIME[Regime Detection<br/>Market State Classification<br/>Bull/Bear/Sideways<br/>Volatility Clustering<br/>Transition Modeling]
+            SENTIMENT[Sentiment Analysis<br/>News Processing<br/>Market Mood Scoring<br/>Social Media Analysis<br/>Economic Indicators]
         end
         
-        subgraph "🛡️ RHA - Risk Models"
-            VAR[📊 Value-at-Risk<br/>Historical Method<br/>Parametric Normal<br/>Monte Carlo Simulation<br/>Confidence: 95%, 99%]
-            STRESS[⚠️ Stress Testing<br/>Market Crash Scenarios<br/>Rate Shock Models<br/>Liquidity Crisis<br/>Currency Crisis]
-            CORR[🔗 Correlation Analysis<br/>Dynamic Correlation<br/>Copula Models<br/>Tail Dependencies<br/>Risk Clustering]
-            HEDGE[🎯 Hedge Optimization<br/>Portfolio Greek Analysis<br/>Hedge Ratio Calculation<br/>Cost-Benefit Analysis<br/>Effectiveness Tracking]
+        subgraph "RHA - Risk Models"
+            VAR[Value-at-Risk<br/>Historical Method<br/>Parametric Normal<br/>Monte Carlo Simulation<br/>Confidence: 95%, 99%]
+            STRESS[Stress Testing<br/>Market Crash Scenarios<br/>Rate Shock Models<br/>Liquidity Crisis<br/>Currency Crisis]
+            CORR[Correlation Analysis<br/>Dynamic Correlation<br/>Copula Models<br/>Tail Dependencies<br/>Risk Clustering]
+            HEDGE[Hedge Optimization<br/>Portfolio Greek Analysis<br/>Hedge Ratio Calculation<br/>Cost-Benefit Analysis<br/>Effectiveness Tracking]
         end
         
-        subgraph "💬 TAAA - NLP & AI"
-            NLP[🗣️ Natural Language Processing<br/>spaCy Pipeline<br/>NLTK Tokenization<br/>Named Entity Recognition<br/>Sentiment Analysis]
-            INTENT[🎯 Intent Classification<br/>Pattern Matching<br/>Feature Extraction<br/>Accuracy: 94%<br/>Context Understanding]
-            LLM[🤖 LLM Integration<br/>OpenAI GPT-4 Turbo<br/>Anthropic Claude 3<br/>Prompt Engineering<br/>Response Generation]
-            MEMORY[🧠 Conversational Memory<br/>Context Management<br/>Session Storage<br/>History Tracking<br/>Personalization]
+        subgraph "TAAA - NLP & AI"
+            NLP[Natural Language Processing<br/>spaCy Pipeline<br/>NLTK Tokenization<br/>Named Entity Recognition<br/>Sentiment Analysis]
+            INTENT[Intent Classification<br/>Pattern Matching<br/>Feature Extraction<br/>Accuracy: 94%<br/>Context Understanding]
+            LLM[LLM Integration<br/>OpenAI GPT-4 Turbo<br/>Anthropic Claude 3<br/>Prompt Engineering<br/>Response Generation]
+            MEMORY[Conversational Memory<br/>Context Management<br/>Session Storage<br/>History Tracking<br/>Personalization]
         end
         
-        subgraph "🔄 Cross-Agent ML"
-            COORD[🤝 Multi-Agent Coordination<br/>Cooperation Scoring<br/>Message Passing<br/>Consensus Mechanisms<br/>Distributed Learning]
-            ENSEMBLE[🎯 System-Wide Ensemble<br/>Model Aggregation<br/>Weighted Voting<br/>Confidence Fusion<br/>Error Correction]
-            ADAPTIVE[📈 Adaptive Learning<br/>Online Learning<br/>Model Retraining<br/>Performance Monitoring<br/>Auto-tuning]
+        subgraph "Cross-Agent ML"
+            COORD[Multi-Agent Coordination<br/>Cooperation Scoring<br/>Message Passing<br/>Consensus Mechanisms<br/>Distributed Learning]
+            ENSEMBLE[System-Wide Ensemble<br/>Model Aggregation<br/>Weighted Voting<br/>Confidence Fusion<br/>Error Correction]
+            ADAPTIVE[Adaptive Learning<br/>Online Learning<br/>Model Retraining<br/>Performance Monitoring<br/>Auto-tuning]
         end
     end
     
@@ -830,254 +541,12 @@ graph TB
 - **Hyperparameter Tuning**: Automated parameter optimization
 - **Performance Monitoring**: Real-time tracking of model accuracy and drift
 
-## Configuration
-
-### Environment Variables
-```bash
-# AI/ML Configuration
-OPENAI_API_KEY=your_openai_api_key
-ANTHROPIC_API_KEY=your_anthropic_api_key
-OPENAI_MODEL=gpt-4-turbo-preview
-ANTHROPIC_MODEL=claude-3-sonnet-20240229
-
-# System Configuration
-DEBUG=true
-LOG_LEVEL=INFO
-WEB_PORT=8080
-API_PORT=8000
-
-# Database Configuration
-DATABASE_URL=postgresql://user:pass@localhost/tlm
-REDIS_URL=redis://localhost:6379/0
-```
-
-### Model Configuration
-```python
-# CFFA Configuration
-CFFA_UPDATE_INTERVAL=300  # 5 minutes
-CFFA_SEQUENCE_LENGTH=30   # Days
-CFFA_FORECAST_HORIZON=30  # Days
-
-# LOA Configuration
-LOA_UPDATE_INTERVAL=600   # 10 minutes
-LOA_RL_TRAINING_FREQ=3600 # 1 hour
-LOA_RISK_TOLERANCE=0.5
-
-# TAAA Configuration
-TAAA_CONVERSATION_TIMEOUT=3600  # 1 hour
-TAAA_MAX_CONTEXT_LENGTH=2000    # Tokens
-```
-
-## Troubleshooting
-
-### Common Issues
-
-#### 1. **Keras Compatibility Error**
-```bash
-# Error: "Keras 3 not supported in Transformers"
-# Solution:
-pip install tf-keras
-```
-
-#### 2. **ortools Version Conflict**
-```bash
-# Error: "Unrecognized new version of ortools"
-# Solution:
-pip install ortools==9.11.4210
-```
-
-#### 3. **SSL Certificate Issues (macOS)**
-```bash
-# Error: "CERTIFICATE_VERIFY_FAILED"
-# Solution: Use the provided script
-python3 setup_nltk.py
-```
-
-#### 4. **NLTK Data Download Issues**
-```bash
-# Manual alternative if setup_nltk.py fails
-python3 -c "import ssl; ssl._create_default_https_context = ssl._create_unverified_context; import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('wordnet')"
-```
-
-#### 5. **Memory Issues**
-```python
-# Reduce model complexity in config
-CFFA_LSTM_LAYERS=2
-CFFA_BATCH_SIZE=16
-USE_GPU=False  # Use CPU instead
-```
-
-### Performance Optimization
-
-#### GPU Acceleration
-```python
-# Check GPU availability
-import torch
-print(f"CUDA available: {torch.cuda.is_available()}")
-print(f"GPU: {torch.cuda.get_device_name() if torch.cuda.is_available() else 'None'}")
-```
-
-#### Model Caching
-```python
-# Enable model caching for faster startup
-CACHE_MODELS=True
-CACHE_DIRECTORY="./model_cache"
-```
-
-## Performance Metrics
-
-### System Performance
-- **Response Time**: < 380ms average (natural language)
-- **Throughput**: 1000+ requests/minute
-- **Uptime**: 99.9% availability
-- **Scalability**: Horizontal scaling ready
-
-### AI Model Performance
-- **CFFA Accuracy**: R² > 0.87 (ensemble)
-- **LOA Sharpe Ratio**: > 1.52
-- **TAAA Intent Accuracy**: > 94%
-- **Risk Prediction**: VaR accuracy > 95%
-
-### Real-time Metrics
-- **Model Training**: Continuous learning enabled
-- **Agent Coordination**: 6/6 agents online
-- **Data Processing**: Real-time market data integration
-- **User Experience**: Interactive chat interface
-
-## API Reference
-
-### Natural Language API
-```bash
-# Chat with AI Assistant
-POST /api/chat
-{
-  "query": "What's the portfolio performance?",
-  "user_id": "user123",
-  "session_id": "session456"
-}
-```
-
-### Health Check API
-```bash
-# System Health
-GET /api/health
-
-# Response:
-{
-  "status": "healthy",
-  "timestamp": "2024-01-01T10:00:00Z",
-  "system": "Agentic TLM - Phase 3",
-  "agents": {
-    "total": 6,
-    "online": 6,
-    "taaa_available": true
-  }
-}
-```
-
-### WebSocket Real-time Updates
-```javascript
-const ws = new WebSocket('ws://localhost:8000/ws/dashboard');
-ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    // Handle real-time updates
-};
-```
-
-## Security & Compliance
-
-### Security Features
-- **API Authentication** with JWT tokens
-- **Role-based Access Control** (RBAC)
-- **Data Encryption** at rest and in transit
-- **Audit Logging** for all transactions
-
-### Compliance
-- **Basel III** framework compliance
-- **LCR/NSFR** reporting capabilities
-- **Risk Management** standards
-- **Data Privacy** (GDPR, CCPA)
-
-## Deployment
-
-### Docker Deployment
-```bash
-# Build and run with Docker Compose
-docker-compose up -d
-
-# Scale specific services
-docker-compose up -d --scale api=3
-```
-
-## Monitoring & Analytics
-
-### Enhanced Dashboard Metrics
-- **AI Agent Health** monitoring
-- **Model Performance** tracking (R², accuracy, loss)
-- **Natural Language** interaction analytics
-- **Real-time Coordination** status
-- **User Engagement** metrics
-
-### Alerting
-- **Risk Threshold** alerts
-- **Model Performance** degradation
-- **System Health** monitoring
-- **Compliance** violation detection
-
-## Development
-
-### Development Setup
-```bash
-# Install development dependencies
-pip install -r requirements-dev.txt
-
-# Run tests
-pytest tests/
-
-# Format code
-black src/
-flake8 src/
-```
-
-### Testing Natural Language Interface
-```python
-# Test the chat interface
-import requests
-
-response = requests.post(
-    "http://localhost:8000/api/chat",
-    json={"query": "What's the system status?"}
-)
-print(response.json())
-```
-
-## Documentation
-
-### Available Resources
-- **This README**: Comprehensive setup and usage guide
-- **Web Dashboard**: Interactive interface with examples
-- **API Docs**: OpenAPI specification at `/docs`
-- **WebSocket API**: Real-time communication protocols
-- **Chat Interface**: Natural language interaction examples
-
-### Quick Links
-- **Interactive Dashboard**: http://localhost:8080
-- **API Documentation**: http://localhost:8000/docs
-- **System Health**: http://localhost:8000/api/health
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ---
 
-## 🎉 Getting Started Summary
+## Getting Started 
 
 1. **Install**: `pip install -r requirements.txt && pip install tf-keras`
 2. **Setup NLP**: `python3 setup_nltk.py`
 3. **Start System**: `python3 start.py`
 4. **Access Dashboard**: http://localhost:8080
-5. **Try Chat**: Ask "What's the cash flow forecast?"
-
-**🚀 Experience the future of AI-powered treasury management!**
  
