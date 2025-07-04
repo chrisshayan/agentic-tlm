@@ -26,18 +26,18 @@ class TLMSystem:
         print(f"""
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                              ║
-║            🏦 AGENTIC TREASURY & LIQUIDITY MANAGEMENT SYSTEM 🏦            ║
+║            🏦 AGENTIC TREASURY & LIQUIDITY MANAGEMENT SYSTEM 🏦              ║
 ║                                                                              ║
-║                            🚀 PRODUCTION READY 🚀                           ║
+║                            🚀 NOT PRODUCTION READY 🚀                         ║
 ║                                                                              ║
 ║  ✨ Real-time Market Data Integration                                        ║
-║  🤖 Advanced ML Models (Random Forest, Feature Engineering)                 ║
-║  📊 Beautiful Web Dashboard with Live Charts                                ║
-║  🎯 Scenario Analysis & Stress Testing                                      ║
-║  ⚡ WebSocket Real-time Updates                                              ║
+║  🤖 Advanced ML Models (Random Forest, Feature Engineering)                  ║
+║  📊 Beautiful Web Dashboard with Live Charts                                 ║
+║  🎯 Scenario Analysis & Stress Testing                                       ║
+║  ⚡ WebSocket Real-time Updates                                               ║
 ║  🛡️ Sophisticated Risk Management & Hedging                                  ║
 ║                                                                              ║
-║  6 AI Agents: CFFA | LOA | MMEA | RHA | RRA | TAAA                         ║
+║  6 AI Agents: CFFA | LOA | MMEA | RHA | RRA | TAAA                           ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
         
