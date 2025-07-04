@@ -53,7 +53,7 @@ class MarketMonitoringAgent(BaseAgent):
             agent_name="Market Monitoring Agent",
             message_bus=message_bus
         )
-        
+    
         # Market data service
         self.market_service = MarketDataService()
         

@@ -48,6 +48,33 @@ A sophisticated, multi-agent AI ecosystem designed to revolutionize treasury ope
 - **Portfolio Impact Analysis** with liquidity assessment
 - **Integration with CFFA and LOA** for coordinated decision making
 
+### 6. **Risk Management & Hedging (RHA) - "The Protector"**
+- **Advanced Risk Assessment**:
+  - Value-at-Risk (VaR) calculations using Historical, Parametric, and Monte Carlo methods
+  - Concentration risk analysis with Herfindahl-Hirschman Index
+  - Correlation risk monitoring across asset classes
+  - Liquidity risk assessment and stress testing
+- **Comprehensive Stress Testing**:
+  - Market crash scenarios (30% equity shock, 10% bond shock)
+  - Interest rate shock modeling (200 bps rate changes)
+  - Liquidity crisis simulations
+  - Currency crisis stress tests
+  - Credit crisis scenarios with spread widening
+- **Dynamic Hedging Strategies**:
+  - Equity hedging with options and futures (SPY PUT, TLT SHORT)
+  - Interest rate hedging for duration risk
+  - Currency hedging with FX forwards
+  - Real-time hedge effectiveness monitoring
+- **Intelligent Risk Alerts**:
+  - Automated threshold monitoring for all risk metrics
+  - Portfolio concentration alerts above 25% threshold
+  - VaR breach notifications with severity levels
+  - Correlation spike warnings during market stress
+- **Integration with Portfolio Management**:
+  - Real-time risk feed to LOA for risk-adjusted optimization
+  - Market volatility alerts to CFFA for forecast adjustment
+  - Hedge recommendations based on current portfolio composition
+
 ## System Architecture
 
 ```
@@ -83,14 +110,23 @@ A sophisticated, multi-agent AI ecosystem designed to revolutionize treasury ope
 │  ├── Portfolio Impact Analysis & Liquidity Assessment          │
 │  └── 🔗 Coordinated Decision Making with CFFA & LOA           │
 ├─────────────────────────────────────────────────────────────────┤
+│  🛡️ RHA - Risk Management & Hedging "The Protector"           │
+│  ├── Advanced VaR Calculations (Historical/Parametric/MC)      │
+│  ├── Comprehensive Stress Testing (5 Major Scenarios)          │
+│  ├── Dynamic Hedging Strategies (Equity/Rate/FX)               │
+│  ├── Real-time Risk Monitoring & Alerts                        │
+│  ├── Portfolio Concentration & Correlation Analysis            │
+│  └── 🔗 Risk Feed Integration with LOA & CFFA                  │
+├─────────────────────────────────────────────────────────────────┤
 │  📈 Enhanced Web Dashboard                                     │
 │  ├── Interactive Chat Interface                                │
 │  ├── Real-time AI Model Visualization                          │
 │  ├── Live Performance Metrics                                  │
 │  ├── Market Insights & Trading Signals                         │
+│  ├── Risk Management & Hedging Dashboard                       │
 │  └── Developer Integration Guide                               │
 ├─────────────────────────────────────────────────────────────────┤
-│  RHA - Risk & Hedging • RRA - Regulatory Reporting            │
+│  RRA - Regulatory Reporting                                    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -162,16 +198,33 @@ The system features sophisticated inter-agent communication through a message bu
   - MMEA provides risk assessments that adjust LOA's risk tolerance
   - Market alerts trigger defensive rebalancing strategies
 
+- **RHA ↔ LOA**: Risk-based portfolio optimization
+  - RHA provides real-time VaR and risk metrics to LOA
+  - LOA portfolio updates trigger RHA risk reassessment
+  - Hedge recommendations from RHA adjust LOA's allocation constraints
+
+- **RHA ↔ CFFA**: Risk-adjusted forecasting
+  - RHA stress test results inform CFFA confidence intervals
+  - CFFA forecast volatility alerts trigger RHA stress testing
+  - Risk limit breaches initiate emergency CFFA recalibration
+
+- **RHA ↔ MMEA**: Market risk coordination
+  - MMEA market volatility feeds into RHA correlation models
+  - RHA hedge recommendations trigger MMEA execution monitoring
+  - Market regime changes update RHA stress test scenarios
+
 - **TAAA ↔ All Agents**: Natural language coordination
   - TAAA orchestrates queries across all agents
   - Provides unified natural language interface
-  - Coordinates multi-agent responses
+  - Coordinates multi-agent responses including risk assessments
 
 ### Real-time Data Flow
 ```
 Market Data → MMEA → Trading Signals → LOA → Portfolio Updates
-     ↓              ↓                    ↓
-  CFFA ← Market Alerts ← Risk Assessment ← Dashboard Updates
+     ↓              ↓                    ↓            ↓
+  CFFA ← Market Alerts ← Risk Assessment ← RHA ← Risk Metrics
+     ↓                                     ↓            ↓
+Forecast Updates ← Stress Tests ← Hedge Recommendations ← Dashboard
 ```
 
 ### Adaptive Behavior
@@ -214,7 +267,19 @@ curl -X GET "http://localhost:8000/api/v1/dashboard/market-data"
 # MMEA Trading Signals API
 curl -X GET "http://localhost:8000/api/v1/dashboard/trading-signals"
 
-# Agent Status with MMEA Integration
+# RHA Risk Assessment API
+curl -X GET "http://localhost:8000/api/v1/dashboard/risk-assessment"
+
+# RHA Hedge Recommendations API
+curl -X GET "http://localhost:8000/api/v1/dashboard/hedge-recommendations"
+
+# RHA Stress Test Results API
+curl -X GET "http://localhost:8000/api/v1/dashboard/stress-tests"
+
+# RHA VaR Analysis API
+curl -X GET "http://localhost:8000/api/v1/dashboard/var-analysis"
+
+# Agent Status with MMEA & RHA Integration
 curl -X GET "http://localhost:8000/api/v1/dashboard/agent-status"
 ```
 
@@ -271,7 +336,23 @@ risk_assessment = await mmea.assess_market_risk()
 # Returns: overall risk level, volatility risks, recommendations
 ```
 
-### 5. Agent Integration Examples
+### 5. Risk Management & Hedging (RHA)
+```python
+# RHA Agent Risk Analysis
+risk_metrics = await rha.get_dashboard_data()
+# Returns: VaR, concentration risk, correlation risk, stress test scores
+
+var_analysis = await rha.calculate_var(portfolio, confidence_level=0.95)
+# Returns: Historical, Parametric, and Monte Carlo VaR calculations
+
+stress_results = await rha.run_stress_tests(portfolio)
+# Returns: Market crash, rate shock, liquidity crisis scenarios
+
+hedge_recommendations = await rha.generate_hedge_recommendations(portfolio, risk_metrics)
+# Returns: Equity hedges, rate hedges, FX hedges with effectiveness scores
+```
+
+### 6. Agent Integration Examples
 ```python
 # CFFA requesting market data from MMEA
 await cffa.request_market_data()  # Triggers MMEA market data response
@@ -279,31 +360,52 @@ await cffa.request_market_data()  # Triggers MMEA market data response
 # LOA requesting trading signals from MMEA
 await loa.request_trading_signals()  # Gets latest trading recommendations
 
+# RHA providing risk metrics to LOA
+await rha.send_risk_update(portfolio_var=0.045, concentration_risk=0.18)
+
+# RHA requesting portfolio data for risk assessment
+await rha.request_portfolio_data()  # Gets current positions from LOA
+
 # MMEA sending market alerts to other agents
 await mmea.send_market_alert("HIGH_VOLATILITY", volatility_data)
+
+# RHA sending risk alerts to all agents
+await rha.send_risk_alert("VAR_BREACH", risk_data)
 ```
 
 ## Enhanced Web Dashboard
 
-### New Market Insights Section
-The dashboard now features comprehensive market insights from MMEA:
+### New Market Insights & Risk Management Sections
+The dashboard now features comprehensive insights from MMEA and RHA:
 
+**Market Insights (MMEA):**
 - **Market Overview**: Real-time market regime, volatility, and coverage statistics
 - **Active Trading Signals**: Live buy/sell recommendations with strength indicators
 - **Risk Alerts**: Current risk levels and portfolio impact warnings
 - **Market Monitoring**: 15+ financial instruments tracked in real-time
 
+**Risk Management & Hedging (RHA):**
+- **Risk Metrics**: Real-time VaR, concentration risk, correlation analysis
+- **Active Hedges**: Current hedge positions and effectiveness monitoring
+- **Hedge Recommendations**: AI-generated hedging strategies with priority levels
+- **Stress Test Results**: Impact analysis for 5 major crisis scenarios
+- **Risk Alerts**: Real-time alerts for portfolio risk limit breaches
+
 ### Agent Status Cards
 Updated agent cards show real-time integration status:
 
-- **CFFA**: Model accuracy enhanced by MMEA market data
-- **LOA**: Portfolio optimization guided by MMEA trading signals
+- **CFFA**: Model accuracy enhanced by MMEA market data and RHA risk scenarios
+- **LOA**: Portfolio optimization guided by MMEA trading signals and RHA risk metrics
+- **RHA**: Real-time risk monitoring with VaR models, stress testing, and hedge management
 - **MMEA**: Market regime detection and signal generation
-- **TAAA**: Coordinated responses across all agents
+- **TAAA**: Coordinated responses across all agents including risk assessments
 
 ### Live Data Updates
 - Market data refreshes every 45 seconds
 - Trading signals update every minute
+- Risk metrics update every minute
+- Hedge recommendations update every 3 minutes
+- Stress test results update every 5 minutes
 - Risk assessments update in real-time
 - Agent coordination status shown live
 

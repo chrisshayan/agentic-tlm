@@ -76,6 +76,7 @@
                             • Cash flow forecasting with LSTM/Transformers<br>
                             • Portfolio optimization using reinforcement learning<br>
                             • Risk analysis and stress testing<br>
+                            • Value-at-Risk (VaR) calculations and hedge strategies<br>
                             • Market conditions and sentiment analysis<br>
                             • System status and agent coordination
                         </div>
@@ -115,6 +116,14 @@
                         <button onclick="setQuery('Show me the system status and agent health')" 
                                 class="w-full text-left p-3 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm transition-colors">
                             🔍 "Show me the system status and agent health"
+                        </button>
+                        <button onclick="setQuery('Run a stress test on my portfolio')" 
+                                class="w-full text-left p-3 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm transition-colors">
+                            🛡️ "Run a stress test on my portfolio"
+                        </button>
+                        <button onclick="setQuery('What is my Value-at-Risk and hedge effectiveness?')" 
+                                class="w-full text-left p-3 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm transition-colors">
+                            📊 "What is my Value-at-Risk and hedge effectiveness?"
                         </button>
                     </div>
                 </div>
@@ -169,6 +178,84 @@
                     </div>
                     <div class="text-xs text-gray-400 mt-2">
                         Sharpe: 1.52 | Episodes: 1,247 | Coordination: Active
+                    </div>
+                </div>
+            </div>
+
+            <!-- RHA - Risk & Hedging -->
+            <div class="glass rounded-lg p-6 model-card">
+                <div class="flex items-center mb-4">
+                    <i data-lucide="shield-check" class="w-6 h-6 mr-3 text-red-400"></i>
+                    <h3 class="text-xl font-bold">🛡️ RHA - Risk Protection</h3>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span>VaR Models</span>
+                        <span class="text-green-400">✅ Active</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Stress Testing</span>
+                        <span class="text-green-400">✅ Running</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Hedge Monitor</span>
+                        <span class="text-green-400">✅ Ready</span>
+                    </div>
+                    <div class="text-xs text-gray-400 mt-2">
+                        VaR 95%: 4.5% | Hedges: 5 | Effectiveness: 78%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional AI Agents Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- MMEA - Market Monitoring -->
+            <div class="glass rounded-lg p-6 model-card">
+                <div class="flex items-center mb-4">
+                    <i data-lucide="trending-up" class="w-6 h-6 mr-3 text-green-400"></i>
+                    <h3 class="text-xl font-bold">📊 MMEA - Market Monitor</h3>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span>Signal Detection</span>
+                        <span class="text-green-400">✅ Active</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Regime Analysis</span>
+                        <span class="text-green-400">✅ Running</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Data Feed</span>
+                        <span class="text-green-400">✅ Live</span>
+                    </div>
+                    <div class="text-xs text-gray-400 mt-2">
+                        Symbols: 15 | Accuracy: 78% | Alerts: 2
+                    </div>
+                </div>
+            </div>
+
+            <!-- RRA - Regulatory Reporting -->
+            <div class="glass rounded-lg p-6 model-card">
+                <div class="flex items-center mb-4">
+                    <i data-lucide="file-text" class="w-6 h-6 mr-3 text-yellow-400"></i>
+                    <h3 class="text-xl font-bold">📋 RRA - Compliance</h3>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span>Report Engine</span>
+                        <span class="text-green-400">✅ Ready</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Compliance Check</span>
+                        <span class="text-green-400">✅ Active</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Audit Trail</span>
+                        <span class="text-green-400">✅ Logging</span>
+                    </div>
+                    <div class="text-xs text-gray-400 mt-2">
+                        Reports: 12 | Compliance: 100% | Alerts: 0
                     </div>
                 </div>
             </div>
@@ -283,6 +370,156 @@
                         <div class="text-gray-400 text-sm">Monitoring...</div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Risk Management & Hedging -->
+        <div class="glass rounded-lg p-6 mb-8">
+            <div class="flex items-center mb-4">
+                <i data-lucide="shield-check" class="w-6 h-6 mr-3 text-red-400"></i>
+                <h2 class="text-2xl font-bold">🛡️ Risk Management & Hedging</h2>
+                <span class="ml-auto text-red-400 text-sm pulse-border">🔴 Real-time</span>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- VaR & Risk Metrics -->
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-red-400">📊 Value-at-Risk & Risk Metrics</h3>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-700 rounded p-3 text-center">
+                                <div id="var-95" class="text-2xl font-bold text-red-400">4.5%</div>
+                                <div class="text-xs text-gray-300">VaR 95% (1-day)</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3 text-center">
+                                <div id="var-99" class="text-2xl font-bold text-red-300">6.3%</div>
+                                <div class="text-xs text-gray-300">VaR 99% (1-day)</div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Expected Shortfall (CVaR):</span>
+                                <span id="expected-shortfall" class="text-white">5.8%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Portfolio Volatility:</span>
+                                <span id="portfolio-volatility" class="text-white">18.2%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Concentration Risk:</span>
+                                <span id="concentration-risk" class="text-white">22.1%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Liquidity Risk:</span>
+                                <span id="liquidity-risk" class="text-white">12.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hedge Positions -->
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-blue-400">🎯 Active Hedge Positions</h3>
+                    <div class="space-y-3">
+                        <div id="hedge-positions-list" class="space-y-2">
+                            <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                                <span class="text-sm text-gray-300">SPY PUT Options</span>
+                                <span class="text-green-400 text-sm">+$125K</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                                <span class="text-sm text-gray-300">TLT Short Position</span>
+                                <span class="text-red-400 text-sm">-$45K</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                                <span class="text-sm text-gray-300">FX Forward EUR/USD</span>
+                                <span class="text-blue-400 text-sm">+$78K</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-gray-700">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Total Hedge P&L:</span>
+                                <span id="total-hedge-pnl" class="text-green-400">+$158K</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Hedge Effectiveness:</span>
+                                <span id="hedge-effectiveness" class="text-white">78%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stress Testing Results -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold mb-3 text-orange-400">📈 Stress Test Results</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-300">Market Crash (-30%):</span>
+                            <span id="stress-market-crash" class="text-red-400">-18.5%</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-300">Rate Shock (+200bps):</span>
+                            <span id="stress-rate-shock" class="text-red-400">-12.3%</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-300">Liquidity Crisis:</span>
+                            <span id="stress-liquidity" class="text-red-400">-25.1%</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-300">Currency Crisis:</span>
+                            <span id="stress-currency" class="text-red-400">-8.7%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Limits & Alerts -->
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold mb-3 text-yellow-400">⚠️ Risk Limits & Alerts</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-300">VaR Limit:</span>
+                            <span class="text-green-400">✅ 4.5% < 5.0%</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-300">Concentration:</span>
+                            <span class="text-green-400">✅ 22% < 25%</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-300">Leverage:</span>
+                            <span class="text-green-400">✅ 1.8x < 2.0x</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-300">Liquidity:</span>
+                            <span class="text-green-400">✅ 12% > 10%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hedge Recommendations -->
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold mb-3 text-purple-400">💡 Hedge Recommendations</h3>
+                    <div id="hedge-recommendations" class="space-y-2 text-sm">
+                        <div class="text-gray-300">
+                            <span class="text-green-400">✅</span> Equity protection adequate
+                        </div>
+                        <div class="text-gray-300">
+                            <span class="text-yellow-400">⚠️</span> Consider rate hedge expansion
+                        </div>
+                        <div class="text-gray-300">
+                            <span class="text-blue-400">💡</span> FX hedge performing well
+                        </div>
+                        <div class="text-gray-300">
+                            <span class="text-red-400">🔴</span> Monitor credit exposure
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Chart -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-4 text-red-400">📊 Risk Profile Over Time</h3>
+                <canvas id="riskChart" width="800" height="300"></canvas>
             </div>
         </div>
 
@@ -452,6 +689,67 @@
             }
         });
 
+        // Initialize risk chart
+        const ctxRisk = document.getElementById('riskChart').getContext('2d');
+        const riskChart = new Chart(ctxRisk, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 30}, (_, i) => {
+                    const date = new Date();
+                    date.setDate(date.getDate() - (29 - i));
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                }),
+                datasets: [
+                    {
+                        label: 'VaR 95%',
+                        data: Array.from({length: 30}, (_, i) => 0.045 + Math.sin(i * 0.1) * 0.008 + Math.random() * 0.005),
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Portfolio Volatility',
+                        data: Array.from({length: 30}, (_, i) => 0.18 + Math.cos(i * 0.12) * 0.02 + Math.random() * 0.01),
+                        borderColor: 'rgb(251, 146, 60)',
+                        backgroundColor: 'rgba(251, 146, 60, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Concentration Risk',
+                        data: Array.from({length: 30}, (_, i) => 0.22 + Math.sin(i * 0.08) * 0.03 + Math.random() * 0.015),
+                        borderColor: 'rgb(168, 85, 247)',
+                        backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { 
+                        labels: { color: 'white' },
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    x: { 
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    y: { 
+                        ticks: { 
+                            color: 'white',
+                            callback: function(value) {
+                                return (value * 100).toFixed(1) + '%';
+                            }
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            }
+        });
+
         // WebSocket connection for real-time updates
         try {
             const ws = new WebSocket('ws://localhost:8000/ws/dashboard');
@@ -491,32 +789,32 @@
                 const data = await response.json();
                 
                 // Update cash position
-                if (data.cffa && data.cffa.cash_position) {
+                if (data.metrics && data.metrics.current_cash_position) {
                     document.getElementById('cash-position').textContent = 
-                        '$' + (data.cffa.cash_position / 1000000).toFixed(1) + 'M';
+                        '$' + (data.metrics.current_cash_position.value / 1000000).toFixed(1) + 'M';
                     
                     // Update cash change percentage
-                    const changePercent = data.cffa.position_change || 0;
+                    const changePercent = data.metrics.current_cash_position.change_percent || 0;
                     document.getElementById('cash-change').textContent = 
                         (changePercent >= 0 ? '+' : '') + changePercent.toFixed(1) + '% vs forecast';
                 }
                 
                 // Update Sharpe ratio
-                if (data.loa && data.loa.sharpe_ratio) {
+                if (data.metrics && data.metrics.sharpe_ratio) {
                     document.getElementById('sharpe-ratio').textContent = 
-                        data.loa.sharpe_ratio.toFixed(2);
+                        data.metrics.sharpe_ratio.value.toFixed(2);
                 }
                 
                 // Update ML accuracy
-                if (data.cffa && data.cffa.model_accuracy) {
+                if (data.metrics && data.metrics.ml_accuracy) {
                     document.getElementById('ml-accuracy').textContent = 
-                        (data.cffa.model_accuracy * 100).toFixed(0) + '%';
+                        data.metrics.ml_accuracy.value.toFixed(0) + '%';
                 }
                 
                 // Update response time
-                if (data.system && data.system.response_time) {
+                if (data.metrics && data.metrics.ai_response_time) {
                     document.getElementById('response-time').textContent = 
-                        data.system.response_time.toFixed(0) + 'ms';
+                        data.metrics.ai_response_time.value.toFixed(0) + 'ms';
                 }
                 
             } catch (error) {
@@ -536,16 +834,26 @@
                 const response = await fetch('http://localhost:8000/api/v1/dashboard/forecast');
                 const data = await response.json();
                 
-                if (data.forecasts && data.forecasts.length > 0) {
+                if (data.forecast && data.forecast.models) {
                     // Update chart with real forecast data
-                    const chartData = data.forecasts.map(f => f.value);
-                    const dates = data.forecasts.map(f => {
-                        const date = new Date(f.date);
-                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    });
+                    const ensembleModel = data.forecast.models.find(m => m.name === 'Ensemble');
+                    if (ensembleModel && ensembleModel.predictions) {
+                        forecastChart.data.datasets[2].data = ensembleModel.predictions;
+                        forecastChart.update();
+                    }
                     
-                    forecastChart.data.labels = dates;
-                    forecastChart.data.datasets[2].data = chartData; // Ensemble data
+                    // Update LSTM model if available
+                    const lstmModel = data.forecast.models.find(m => m.name === 'LSTM');
+                    if (lstmModel && lstmModel.predictions) {
+                        forecastChart.data.datasets[0].data = lstmModel.predictions;
+                    }
+                    
+                    // Update Transformer model if available
+                    const transformerModel = data.forecast.models.find(m => m.name === 'Transformer');
+                    if (transformerModel && transformerModel.predictions) {
+                        forecastChart.data.datasets[1].data = transformerModel.predictions;
+                    }
+                    
                     forecastChart.update();
                 }
             } catch (error) {
@@ -559,15 +867,11 @@
                 const response = await fetch('http://localhost:8000/api/v1/dashboard/portfolio');
                 const data = await response.json();
                 
-                if (data.allocation) {
-                    const allocation = data.allocation;
-                    portfolioChart.data.datasets[0].data = [
-                        allocation.cash || 30,
-                        allocation.bonds || 40,
-                        allocation.stocks || 20,
-                        allocation.alternatives || 8,
-                        allocation.derivatives || 2
-                    ];
+                if (data.portfolio && data.portfolio.allocations) {
+                    portfolioChart.data.datasets[0].data = data.portfolio.allocations;
+                    if (data.portfolio.labels) {
+                        portfolioChart.data.labels = data.portfolio.labels;
+                    }
                     portfolioChart.update();
                 }
             } catch (error) {
@@ -581,6 +885,7 @@
             await updateForecastChart();
             await updatePortfolioChart();
             await initializeMMEAData();
+            await updateRiskManagementData();
         }
 
         // Update dashboard on page load
@@ -689,15 +994,15 @@
                     const signals = data.trading_signals.signals.slice(0, 3); // Show only top 3 signals
                     
                     signalsContainer.innerHTML = signals.map(signal => {
-                        const signalColor = signal.signal_type === 'BUY' ? 'text-green-400' : 
-                                          signal.signal_type === 'SELL' ? 'text-red-400' : 'text-yellow-400';
+                        const signalColor = signal.signal === 'BUY' ? 'text-green-400' : 
+                                          signal.signal === 'SELL' ? 'text-red-400' : 'text-yellow-400';
                         const strengthBars = Math.round(signal.strength * 5);
                         const strengthDisplay = '█'.repeat(strengthBars) + '░'.repeat(5 - strengthBars);
                         
                         return `
                             <div class="flex justify-between items-center py-1">
                                 <span class="text-sm">${signal.symbol}</span>
-                                <span class="${signalColor} text-sm font-bold">${signal.signal_type}</span>
+                                <span class="${signalColor} text-sm font-bold">${signal.signal}</span>
                                 <span class="text-xs text-gray-400">${strengthDisplay}</span>
                             </div>
                         `;
@@ -782,159 +1087,152 @@
             await updateRiskAlerts();
         }
 
-        // Function to update dashboard metrics with real API data
-        async function updateDashboardMetrics() {
+        // Function to update risk management data
+        async function updateRiskManagementData() {
             try {
-                const response = await fetch('http://localhost:8000/api/v1/dashboard/metrics');
+                const response = await fetch('http://localhost:8000/api/v1/dashboard/risk-assessment');
                 const data = await response.json();
                 
-                console.log('Dashboard metrics received:', data);
-                
-                // Update cash position - handle nested structure
-                if (data.metrics && data.metrics.current_cash_position) {
-                    const cashElement = document.getElementById('cash-position');
-                    if (cashElement) {
-                        const cashValue = data.metrics.current_cash_position.value;
-                        cashElement.textContent = '$' + (cashValue / 1000000).toFixed(1) + 'M';
+                if (data.risk_assessment) {
+                    const riskData = data.risk_assessment;
+                    
+                    // Update VaR metrics
+                    const var95Element = document.getElementById('var-95');
+                    if (var95Element) {
+                        const var95Value = riskData.metrics?.var_95 || riskData.risk_breakdown?.var_95 || 0.045;
+                        var95Element.textContent = (var95Value * 100).toFixed(1) + '%';
                     }
                     
-                    // Update cash change percentage
-                    const cashChangeElement = document.getElementById('cash-change');
-                    if (cashChangeElement) {
-                        const changePercent = data.metrics.current_cash_position.change_percent || 0;
-                        cashChangeElement.textContent = (changePercent >= 0 ? '+' : '') + changePercent.toFixed(1) + '% vs forecast';
+                    const var99Element = document.getElementById('var-99');
+                    if (var99Element) {
+                        const var99Value = riskData.metrics?.var_99 || riskData.risk_breakdown?.var_99 || 0.063;
+                        var99Element.textContent = (var99Value * 100).toFixed(1) + '%';
                     }
-                }
-                
-                // Update Sharpe ratio
-                if (data.metrics && data.metrics.sharpe_ratio) {
-                    const sharpeElement = document.getElementById('sharpe-ratio');
-                    if (sharpeElement) {
-                        sharpeElement.textContent = data.metrics.sharpe_ratio.value.toFixed(2);
+                    
+                    const expectedShortfallElement = document.getElementById('expected-shortfall');
+                    if (expectedShortfallElement) {
+                        const expectedShortfall = riskData.risk_breakdown?.expected_shortfall || 0.058;
+                        expectedShortfallElement.textContent = (expectedShortfall * 100).toFixed(1) + '%';
                     }
-                }
-                
-                // Update ML accuracy
-                if (data.metrics && data.metrics.ml_accuracy) {
-                    const mlElement = document.getElementById('ml-accuracy');
-                    if (mlElement) {
-                        mlElement.textContent = data.metrics.ml_accuracy.value + '%';
+                    
+                    const portfolioVolElement = document.getElementById('portfolio-volatility');
+                    if (portfolioVolElement) {
+                        const portfolioVol = riskData.metrics?.portfolio_volatility || 0.182;
+                        portfolioVolElement.textContent = (portfolioVol * 100).toFixed(1) + '%';
                     }
-                }
-                
-                // Update AI response time
-                if (data.metrics && data.metrics.ai_response_time) {
-                    const responseElement = document.getElementById('response-time');
-                    if (responseElement) {
-                        responseElement.textContent = data.metrics.ai_response_time.value + 'ms';
+                    
+                    const concentrationRiskElement = document.getElementById('concentration-risk');
+                    if (concentrationRiskElement) {
+                        const concentrationRisk = riskData.metrics?.concentration_risk || 0.221;
+                        concentrationRiskElement.textContent = (concentrationRisk * 100).toFixed(1) + '%';
+                    }
+                    
+                    const liquidityRiskElement = document.getElementById('liquidity-risk');
+                    if (liquidityRiskElement) {
+                        const liquidityRisk = riskData.risk_breakdown?.liquidity_risk || 0.12;
+                        liquidityRiskElement.textContent = (liquidityRisk * 100).toFixed(1) + '%';
+                    }
+                    
+                    // Update hedge metrics
+                    const hedgeEffectivenessElement = document.getElementById('hedge-effectiveness');
+                    if (hedgeEffectivenessElement) {
+                        const hedgeEffectiveness = riskData.metrics?.hedge_effectiveness || 0.78;
+                        hedgeEffectivenessElement.textContent = (hedgeEffectiveness * 100).toFixed(0) + '%';
+                    }
+                    
+                    const totalHedgePnlElement = document.getElementById('total-hedge-pnl');
+                    if (totalHedgePnlElement) {
+                        const pnl = riskData.metrics?.total_hedge_pnl || 158000;
+                        totalHedgePnlElement.textContent = pnl >= 0 ? 
+                            `+$${(pnl/1000).toFixed(0)}K` : `-$${(Math.abs(pnl)/1000).toFixed(0)}K`;
+                        totalHedgePnlElement.className = pnl >= 0 ? 'text-green-400' : 'text-red-400';
+                    }
+                    
+                    // Update stress test results (use fallback values since they're not in the main endpoint)
+                    const stressMarketCrashElement = document.getElementById('stress-market-crash');
+                    if (stressMarketCrashElement) {
+                        stressMarketCrashElement.textContent = '-18.5%';
+                    }
+                    
+                    const stressRateShockElement = document.getElementById('stress-rate-shock');
+                    if (stressRateShockElement) {
+                        stressRateShockElement.textContent = '-12.3%';
+                    }
+                    
+                    const stressLiquidityElement = document.getElementById('stress-liquidity');
+                    if (stressLiquidityElement) {
+                        stressLiquidityElement.textContent = '-25.1%';
+                    }
+                    
+                    const stressCurrencyElement = document.getElementById('stress-currency');
+                    if (stressCurrencyElement) {
+                        stressCurrencyElement.textContent = '-8.7%';
+                    }
+                    
+                    // Update risk chart if new data available
+                    if (riskData.risk_history && riskData.risk_history.length > 0) {
+                        updateRiskChart(riskData.risk_history);
                     }
                 }
                 
             } catch (error) {
-                console.error('Error updating dashboard metrics:', error);
-                // Set fallback values when API fails
-                const cashElement = document.getElementById('cash-position');
-                if (cashElement && cashElement.textContent === 'Loading...') {
-                    cashElement.textContent = '$52.3M';
-                }
-                
-                const cashChangeElement = document.getElementById('cash-change');
-                if (cashChangeElement && cashChangeElement.textContent === 'Calculating...') {
-                    cashChangeElement.textContent = '+2.1% vs forecast';
-                }
-                
-                const sharpeElement = document.getElementById('sharpe-ratio');
-                if (sharpeElement && sharpeElement.textContent === 'Loading...') {
-                    sharpeElement.textContent = '1.52';
-                }
-                
-                const mlElement = document.getElementById('ml-accuracy');
-                if (mlElement && mlElement.textContent === 'Loading...') {
-                    mlElement.textContent = '87%';
-                }
-                
-                const responseElement = document.getElementById('response-time');
-                if (responseElement && responseElement.textContent === 'Loading...') {
-                    responseElement.textContent = '380ms';
-                }
+                console.error('Error updating risk management data:', error);
+                // Fallback values are already set in the HTML
             }
         }
 
-        // Function to update forecast chart with real data
-        async function updateForecastChart() {
+        // Function to update risk chart with real data
+        function updateRiskChart(riskHistory) {
             try {
-                const response = await fetch('http://localhost:8000/api/v1/dashboard/forecast');
-                const data = await response.json();
-                
-                if (data.forecasts && data.forecasts.length > 0) {
-                    // Update chart with real forecast data
-                    const chartData = data.forecasts.map(f => f.value);
-                    const dates = data.forecasts.map(f => {
-                        const date = new Date(f.date);
+                if (riskHistory && riskHistory.length > 0) {
+                    const dates = riskHistory.map(item => {
+                        const date = new Date(item.date);
                         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                     });
                     
-                    forecastChart.data.labels = dates;
-                    forecastChart.data.datasets[2].data = chartData; // Ensemble data
-                    forecastChart.update();
+                    const varData = riskHistory.map(item => item.var_95 || 0.045);
+                    const volData = riskHistory.map(item => item.volatility || 0.18);
+                    const concentrationData = riskHistory.map(item => item.concentration_risk || 0.22);
+                    
+                    riskChart.data.labels = dates;
+                    riskChart.data.datasets[0].data = varData;
+                    riskChart.data.datasets[1].data = volData;
+                    riskChart.data.datasets[2].data = concentrationData;
+                    riskChart.update();
                 }
             } catch (error) {
-                console.error('Error updating forecast chart:', error);
+                console.error('Error updating risk chart:', error);
             }
         }
 
-        // Function to update portfolio chart with real data
-        async function updatePortfolioChart() {
+        // Function to update hedge positions
+        async function updateHedgePositions() {
             try {
-                const response = await fetch('http://localhost:8000/api/v1/dashboard/portfolio');
+                const response = await fetch('http://localhost:8000/api/v1/dashboard/hedge-positions');
                 const data = await response.json();
                 
-                if (data.allocation) {
-                    const allocation = data.allocation;
-                    portfolioChart.data.datasets[0].data = [
-                        allocation.cash || 30,
-                        allocation.bonds || 40,
-                        allocation.stocks || 20,
-                        allocation.alternatives || 8,
-                        allocation.derivatives || 2
-                    ];
-                    portfolioChart.update();
+                if (data.hedge_positions && data.hedge_positions.length > 0) {
+                    const hedgePositionsContainer = document.getElementById('hedge-positions-list');
+                    if (hedgePositionsContainer) {
+                        hedgePositionsContainer.innerHTML = data.hedge_positions.map(position => {
+                            const pnlColor = position.pnl >= 0 ? 'text-green-400' : 'text-red-400';
+                            const pnlText = position.pnl >= 0 ? 
+                                `+$${(position.pnl/1000).toFixed(0)}K` : 
+                                `-$${(Math.abs(position.pnl)/1000).toFixed(0)}K`;
+                            
+                            return `
+                                <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                                    <span class="text-sm text-gray-300">${position.instrument}</span>
+                                    <span class="${pnlColor} text-sm">${pnlText}</span>
+                                </div>
+                            `;
+                        }).join('');
+                    }
                 }
             } catch (error) {
-                console.error('Error updating portfolio chart:', error);
+                console.error('Error updating hedge positions:', error);
             }
         }
-
-        // Initialize all dashboard data
-        async function initializeDashboard() {
-            console.log('Initializing dashboard...');
-            await updateDashboardMetrics();
-            await updateForecastChart();
-            await updatePortfolioChart();
-            await initializeMMEAData();
-        }
-
-        // Call initialization when page loads
-        window.addEventListener('load', function() {
-            console.log('Window loaded, initializing dashboard...');
-            initializeDashboard();
-        });
-
-        // Also trigger initialization when DOM is ready (faster)
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM ready, starting immediate initialization...');
-            setTimeout(function() {
-                initializeDashboard();
-            }, 100);
-        });
-
-        // Set up automatic updates
-        setInterval(updateDashboardMetrics, 30000);    // Every 30 seconds
-        setInterval(updateForecastChart, 60000);       // Every minute
-        setInterval(updatePortfolioChart, 60000);      // Every minute
-        setInterval(updateMMEAMarketData, 45000);      // Every 45 seconds
-        setInterval(updateTradingSignals, 60000);      // Every minute
-        setInterval(updateRiskAlerts, 120000);         // Every 2 minutes
 
         // Update dashboard every 30 seconds
         setInterval(updateDashboardMetrics, 30000);
@@ -942,6 +1240,8 @@
         setInterval(updatePortfolioChart, 60000);
         setInterval(updateMMEAMarketData, 45000);  // Update MMEA data every 45 seconds
         setInterval(updateTradingSignals, 60000);   // Update signals every minute
+        setInterval(updateRiskManagementData, 45000); // Update risk data every 45 seconds
+        setInterval(updateHedgePositions, 60000);   // Update hedge positions every minute
 
     </script>
 </body>
